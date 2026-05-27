@@ -6,8 +6,8 @@ from app.schemas.workflow import StructuredRequest, WorkflowTask
 
 def test_car_budget_request_orders_budget_before_search_and_comparison() -> None:
     structured = StructuredRequest(
-        original_request="Find me a car under $500 and explain tradeoffs.",
-        goal="Find me a car under $500 and explain tradeoffs.",
+        original_request="Compare two AI workflow tools for a small team.",
+        goal="Compare two AI workflow tools for a small team.",
         constraints=["Budget or price constraint detected"],
     )
 
@@ -53,4 +53,3 @@ def test_dependency_cycle_is_rejected() -> None:
 
     with pytest.raises(ValueError, match="cycle"):
         order_tasks_by_prerequisites(tasks)
-

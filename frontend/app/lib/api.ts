@@ -1,11 +1,7 @@
 import type {
-  DecisionBriefState,
-  DecisionSkillResponse,
-  PipelineStep,
   NodeTrace,
   RunCreateRequest,
   RunResponse,
-  TemplateResponse,
   UsageLog
 } from "./types";
 
@@ -118,59 +114,6 @@ export async function listRunUsage(runId: string, token: string | null): Promise
   if (!response.ok) {
     const text = await response.text();
     throw new Error(text || "Unable to load usage logs.");
-  }
-
-  return response.json();
-}
-
-export async function listTemplates(): Promise<TemplateResponse[]> {
-  const response = await fetch(`${API_BASE_URL}/api/templates`);
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Unable to load workflow templates.");
-  }
-
-  return response.json();
-}
-
-export async function startDecisionSkill(): Promise<DecisionSkillResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/design-skill/start`);
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Unable to start Decision Maker.");
-  }
-
-  return response.json();
-}
-
-export async function answerDecisionSkill(
-  state: DecisionBriefState,
-  answer: string
-): Promise<DecisionSkillResponse> {
-  const response = await fetch(`${API_BASE_URL}/api/design-skill/answer`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ state, answer })
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Unable to advance Decision Maker.");
-  }
-
-  return response.json();
-}
-
-export async function listDesignPipeline(): Promise<PipelineStep[]> {
-  const response = await fetch(`${API_BASE_URL}/api/design-skill/pipeline`);
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(text || "Unable to load design pipeline.");
   }
 
   return response.json();

@@ -12,7 +12,7 @@ AgentType = Literal["reasoning", "search", "comparison", "extraction", "writing"
 
 class RunCreateRequest(BaseModel):
     user_request: str = Field(min_length=3, max_length=5000)
-    template_key: str = Field(default="general", max_length=80)
+    template_key: str = Field(default="generic", max_length=80)
 
 
 class TemplateResponse(BaseModel):

@@ -20,7 +20,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </a>
           <nav>
             <a className="nav-link" href="/dashboard">Dashboard</a>
-            <a className="nav-link" href="/decision-maker">Decision Maker</a>
             {authMode === "dev" && <span className="dev-badge">Dev auth</span>}
           </nav>
         </header>

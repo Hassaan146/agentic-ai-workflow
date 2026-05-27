@@ -54,7 +54,7 @@ Theme: From design to execution.
 
 Key message:
 
-The first MVP will support login, a dashboard, one general workflow, three templates, live agent execution trace, saved runs, and final output with sources.
+The first MVP will support login, a dashboard, one general workflow, live agent execution trace, saved runs, and final output with sources.
 
 Visual:
 
@@ -71,4 +71,3 @@ The project is tested at every layer: backend endpoints, auth, Supabase, LangGra
 Visual:
 
 Use a simple testing pyramid or deployment checklist.
-

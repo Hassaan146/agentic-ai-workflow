@@ -2,23 +2,16 @@
 
 import { Play, RefreshCw } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import { listRuns, listRunTraces, listRunUsage, listTemplates, streamRun } from "../../lib/api";
-import type { NodeTrace, RunResponse, TemplateResponse, UsageLog } from "../../lib/types";
-
-const templates = [
-  { key: "research", label: "Research Assistant" },
-  { key: "product_comparison", label: "Product Comparison" },
-  { key: "startup_validator", label: "Startup Idea Validator" }
-];
+import { listRuns, listRunTraces, listRunUsage, streamRun } from "../../lib/api";
+import type { NodeTrace, RunResponse, UsageLog } from "../../lib/types";
 
 type WorkflowRunnerProps = {
   getToken: () => Promise<string | null>;
 };
 
+const GENERIC_TEMPLATE_KEY = "generic";
+
 export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
-  const [request, setRequest] = useState("Find me a car under $500 and explain the tradeoffs.");
-  const [templateKey, setTemplateKey] = useState(templates[0].key);
-  const [availableTemplates, setAvailableTemplates] = useState<TemplateResponse[]>([]);
   const [run, setRun] = useState<RunResponse | null>(null);
   const [traces, setTraces] = useState<NodeTrace[]>([]);
   const [usageLogs, setUsageLogs] = useState<UsageLog[]>([]);
@@ -30,14 +23,10 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
     async function loadInitialData() {
       try {
         const token = await getToken();
-        const [templateData, runData] = await Promise.all([
-          listTemplates(),
-          listRuns(token)
-        ]);
-        setAvailableTemplates(templateData);
+        const runData = await listRuns(token);
         setRecentRuns(runData);
       } catch {
-        setAvailableTemplates([]);
+        setRecentRuns([]);
       }
     }
 
@@ -71,6 +60,14 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const submittedRequest = String(formData.get("request") ?? "").trim();
+    if (submittedRequest.length < 3) {
+      setError("Please enter a request before starting the workflow.");
+      return;
+    }
+
     setIsRunning(true);
     setError("");
     setRun(null);
@@ -80,7 +77,7 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
       const token = await getToken();
       let completedRunId: string | null = null;
       await streamRun(
-        { user_request: request, template_key: templateKey },
+        { user_request: submittedRequest, template_key: GENERIC_TEMPLATE_KEY },
         token,
         {
           onRun: (nextRun) => {
@@ -119,18 +116,11 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
           <h1>Run a workflow</h1>
           <form onSubmit={handleSubmit} className="workflow-form">
             <label>
-              Template
-              <select value={templateKey} onChange={(event) => setTemplateKey(event.target.value)}>
-                {(availableTemplates.length ? availableTemplates : templates).map((template) => (
-                  <option key={template.key} value={template.key}>
-                    {"name" in template ? template.name : template.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
               Request
-              <textarea value={request} onChange={(event) => setRequest(event.target.value)} />
+              <textarea
+                name="request"
+                placeholder="Ask the agentic workflow to research, compare, plan, validate, or explain something..."
+              />
             </label>
             <button className="primary-button" disabled={isRunning} type="submit">
               {isRunning ? <RefreshCw size={18} /> : <Play size={18} />}
@@ -146,7 +136,7 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
           {!!traces.length && (
             <div className="live-trace">
               {traces.map((trace) => (
-                <div className={`live-trace-row ${trace.status}`} key={trace.id}>
+                <div className={`live-trace-row ${trace.status}`} key={traceKey(trace)}>
                   <strong>{trace.agent_name}</strong>
                   <span>{trace.node_key.replaceAll("_", " ")}</span>
                   <small>{trace.status}</small>
@@ -188,7 +178,7 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
                 <h3>Node traces</h3>
                 <div className="compact-list">
                   {traces.map((trace) => (
-                    <div className="compact-row" key={trace.id}>
+                    <div className="compact-row" key={traceKey(trace)}>
                       <strong>{trace.agent_name}</strong>
                       <span>{trace.node_key}</span>
                       <small>{trace.status}</small>
@@ -218,7 +208,7 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
           <div className="recent-list">
             {recentRuns.slice(0, 5).map((item) => (
               <button className="recent-run" key={item.id} onClick={() => setRun(item)} type="button">
-                <span>{item.template_key}</span>
+                <span>Generic workflow</span>
                 <strong>{item.user_request}</strong>
                 <small>{item.status}</small>
               </button>
@@ -228,4 +218,8 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
       </section>
     </main>
   );
+}
+
+function traceKey(trace: NodeTrace) {
+  return `${trace.id}-${trace.status}-${trace.completed_at ?? trace.started_at}`;
 }

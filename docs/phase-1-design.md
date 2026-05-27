@@ -10,7 +10,7 @@ Normal chatbots usually try to answer complex requests in one pass. That makes t
 
 Users often submit broad or unstructured requests:
 
-- "Find me a car under $500."
+- "Compare two AI workflow tools for a small team."
 - "Research this startup idea and tell me if it is worth building."
 - "Compare these products and recommend the best option."
 
@@ -40,4 +40,3 @@ The first release will prove that a user can:
 - See the system structure and route the request.
 - Watch agents execute step by step.
 - Receive a final answer with sources and traceability.
-

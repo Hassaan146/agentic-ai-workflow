@@ -94,7 +94,7 @@ What was created:
 - Local dev auth mode using `dev-token`.
 - Simple dashboard GUI.
 - Request form.
-- Template selector.
+- Generic workflow request form.
 - Backend template endpoint.
 - Recent run history panel.
 - Final output panel.
@@ -112,10 +112,7 @@ Status: skeleton complete.
 
 What was created:
 
-- Three starter templates in the frontend selector:
-  - Research Assistant
-  - Product Comparison
-  - Startup Idea Validator
+- One generic workflow entry point.
 - Saved run support through repository abstraction.
 - Node trace support.
 - Final output support.

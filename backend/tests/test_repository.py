@@ -6,7 +6,7 @@ def test_repository_run_lifecycle() -> None:
     repository = InMemoryRunRepository()
     run = repository.create_run(
         "user_123",
-        RunCreateRequest(user_request="Validate my startup idea.", template_key="startup_validator"),
+        RunCreateRequest(user_request="Validate my startup idea.", template_key="generic"),
     )
 
     repository.add_node_trace(
@@ -31,7 +31,7 @@ def test_repository_tracks_usage_logs() -> None:
     repository = InMemoryRunRepository()
     run = repository.create_run(
         "user_123",
-        RunCreateRequest(user_request="Research AI agents.", template_key="research"),
+        RunCreateRequest(user_request="Research AI agents.", template_key="generic"),
     )
 
     repository.add_usage_log(

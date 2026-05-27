@@ -8,7 +8,7 @@ Verified by:
 
 - Design docs exist in `docs/`.
 - Mermaid diagrams are present in `docs/diagrams.md`.
-- Decision Maker project memory exists in `docs/project-memory.md`.
+- Product documentation exists without frontend-skill implementation artifacts.
 
 ## Phase 2: Stack And Environment
 

@@ -82,7 +82,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    A["User: Find me a car under $500"] --> B["Structure Request"]
+    A["User: Compare two AI workflow tools"] --> B["Structure Request"]
     B --> C["Extract Constraint: budget <= $500"]
     C --> D["Analyze Prerequisites"]
     D --> E["Budget Filter Must Run Before Recommendation"]
@@ -93,4 +93,3 @@ flowchart TD
     I -->|No| J["Return honest limitation and alternatives"]
     I -->|Yes| K["Final Suggestions With Reasoning"]
 ```
-

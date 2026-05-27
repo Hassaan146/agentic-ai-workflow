@@ -22,13 +22,6 @@ export type RunResponse = {
   updated_at: string;
 };
 
-export type TemplateResponse = {
-  key: string;
-  name: string;
-  description: string;
-  starter_prompt: string;
-};
-
 export type NodeTrace = {
   id: string;
   run_id: string;
@@ -52,61 +45,4 @@ export type UsageLog = {
   completion_tokens: number;
   estimated_cost: number;
   created_at: string;
-};
-
-export type DecisionStep =
-  | "project"
-  | "feeling"
-  | "audience"
-  | "anti_audience"
-  | "hero_object"
-  | "job"
-  | "cut"
-  | "three_second_memory"
-  | "feeling_references"
-  | "structure_references"
-  | "detail_references"
-  | "color_logic"
-  | "type_logic"
-  | "spatial_logic"
-  | "complete";
-
-export type ReferenceItem = {
-  name: string;
-  note: string;
-};
-
-export type DecisionBriefState = {
-  current_step: DecisionStep;
-  project_name: string | null;
-  project_summary: string | null;
-  feeling: string | null;
-  audience: string | null;
-  anti_audience: string | null;
-  hero_object: string | null;
-  job: string | null;
-  cut: string | null;
-  three_second_memory: string | null;
-  feeling_references: ReferenceItem[];
-  structure_references: ReferenceItem[];
-  detail_references: ReferenceItem[];
-  color_logic: string | null;
-  type_logic: string | null;
-  spatial_logic: string | null;
-};
-
-export type DecisionSkillResponse = {
-  state: DecisionBriefState;
-  locked: boolean;
-  message: string;
-  next_step: DecisionStep;
-  outputs: Record<string, string> | null;
-};
-
-export type PipelineStep = {
-  number: string;
-  phase: string;
-  title: string;
-  purpose: string;
-  tools: string[];
 };

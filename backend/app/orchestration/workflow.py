@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 from typing import Any, TypedDict
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from langgraph.graph import END, StateGraph
 
@@ -91,6 +91,7 @@ def _trace(repository: RunRepository, node_key: str, agent_name: str, handler):
             repository.add_node_trace(
                 trace.model_copy(
                     update={
+                        "id": uuid4(),
                         "status": "completed",
                         "output_payload": _compact_state(next_state),
                         "completed_at": datetime.now(UTC),
@@ -102,6 +103,7 @@ def _trace(repository: RunRepository, node_key: str, agent_name: str, handler):
             repository.add_node_trace(
                 trace.model_copy(
                     update={
+                        "id": uuid4(),
                         "status": "failed",
                         "error_message": str(exc),
                         "completed_at": datetime.now(UTC),

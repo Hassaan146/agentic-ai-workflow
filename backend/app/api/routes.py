@@ -6,10 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from app.auth.clerk import AuthenticatedUser, get_current_user
-from app.design_skill.decision_maker import answer_decision_maker, start_decision_maker
-from app.design_skill.memory import project_memory_payload
-from app.design_skill.models import DecisionAnswerRequest, DecisionSkillResponse
-from app.design_skill.pipeline import PIPELINE_STEPS
 from app.orchestration.workflow import run_agentic_workflow
 from app.schemas.workflow import NodeTrace, RunCreateRequest, RunResponse, UsageLog
 from app.storage.repository import RunRepository, get_repository
@@ -31,26 +27,6 @@ def me(user: AuthenticatedUser = Depends(get_current_user)) -> AuthenticatedUser
 @router.get("/templates")
 def list_templates():
     return TEMPLATES
-
-
-@router.get("/design-skill/start", response_model=DecisionSkillResponse)
-def start_design_skill() -> DecisionSkillResponse:
-    return start_decision_maker()
-
-
-@router.post("/design-skill/answer", response_model=DecisionSkillResponse)
-def answer_design_skill(request: DecisionAnswerRequest) -> DecisionSkillResponse:
-    return answer_decision_maker(request)
-
-
-@router.get("/design-skill/pipeline")
-def list_design_pipeline():
-    return PIPELINE_STEPS
-
-
-@router.get("/design-skill/memory")
-def get_design_skill_memory():
-    return project_memory_payload()
 
 
 @router.post("/runs", response_model=RunResponse)

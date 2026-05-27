@@ -11,8 +11,8 @@ async def test_agentic_workflow_completes_with_trace() -> None:
     run = repository.create_run(
         "user_123",
         RunCreateRequest(
-            user_request="Find me a car under $500 and explain tradeoffs.",
-            template_key="product_comparison",
+            user_request="Compare two AI workflow tools for a small team.",
+            template_key="generic",
         ),
     )
 

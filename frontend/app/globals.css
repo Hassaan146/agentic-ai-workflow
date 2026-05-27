@@ -317,104 +317,6 @@ textarea {
   font-weight: 700;
 }
 
-.decision-grid {
-  display: grid;
-  gap: 18px;
-  grid-template-columns: minmax(0, 1fr) 360px;
-}
-
-.decision-main {
-  display: grid;
-  gap: 18px;
-}
-
-.decision-message {
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  line-height: 1.65;
-  padding: 18px;
-  white-space: pre-wrap;
-}
-
-.brief-list {
-  display: grid;
-  gap: 14px;
-  margin: 0;
-}
-
-.brief-list div {
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 12px;
-}
-
-.brief-list dt {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.brief-list dd {
-  margin: 6px 0 0;
-}
-
-.decision-outputs {
-  grid-column: 1 / -1;
-}
-
-.output-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.output-box {
-  padding: 16px;
-}
-
-.output-box pre {
-  background: #101820;
-  color: #e8f1f2;
-  max-height: 320px;
-  overflow: auto;
-  padding: 14px;
-  white-space: pre-wrap;
-}
-
-.pipeline-list {
-  display: grid;
-  gap: 10px;
-}
-
-.pipeline-step {
-  align-items: start;
-  display: grid;
-  gap: 14px;
-  grid-template-columns: 48px 1fr;
-  padding: 14px;
-}
-
-.pipeline-step span {
-  background: var(--brand);
-  color: white;
-  display: inline-grid;
-  font-weight: 700;
-  height: 40px;
-  place-items: center;
-  width: 40px;
-}
-
-.pipeline-step p {
-  color: var(--muted);
-  line-height: 1.5;
-  margin: 0 0 8px;
-}
-
-.pipeline-step small {
-  color: var(--brand-strong);
-  font-weight: 700;
-}
-
 @media (max-width: 820px) {
   .app-header {
     padding: 0 18px;
@@ -430,8 +332,6 @@ textarea {
 
   .feature-grid,
   .workspace,
-  .decision-grid,
-  .output-grid,
   .inspection-grid {
     grid-template-columns: 1fr;
   }

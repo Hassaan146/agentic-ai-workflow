@@ -17,20 +17,20 @@ def test_run_creation_requires_auth() -> None:
 
     response = client.post(
         "/api/runs",
-        json={"user_request": "Research AI workflow tools.", "template_key": "research"},
+        json={"user_request": "Research AI workflow tools.", "template_key": "generic"},
     )
 
     assert response.status_code == 401
 
 
-def test_templates_endpoint_lists_mvp_templates() -> None:
+def test_templates_endpoint_lists_generic_workflow() -> None:
     client = TestClient(create_app())
 
     response = client.get("/api/templates")
 
     assert response.status_code == 200
     template_keys = {template["key"] for template in response.json()}
-    assert {"research", "product_comparison", "startup_validator"}.issubset(template_keys)
+    assert template_keys == {"generic"}
 
 
 def test_run_creation_and_listing_with_dev_token() -> None:
@@ -40,7 +40,7 @@ def test_run_creation_and_listing_with_dev_token() -> None:
     create_response = client.post(
         "/api/runs",
         headers=headers,
-        json={"user_request": "Find me a car under $500.", "template_key": "product_comparison"},
+        json={"user_request": "Research practical AI workflow tools.", "template_key": "generic"},
     )
     list_response = client.get("/api/runs", headers=headers)
 
@@ -59,7 +59,7 @@ def test_run_event_stream_returns_node_traces() -> None:
     create_response = client.post(
         "/api/runs",
         headers=headers,
-        json={"user_request": "Validate my startup idea.", "template_key": "startup_validator"},
+        json={"user_request": "Validate my startup idea.", "template_key": "generic"},
     )
     run_id = create_response.json()["id"]
     events_response = client.get(f"/api/runs/{run_id}/events", headers=headers)
@@ -76,7 +76,7 @@ def test_run_stream_creates_run_and_emits_trace_events() -> None:
     response = client.post(
         "/api/runs/stream",
         headers=headers,
-        json={"user_request": "Compare two AI workflow tools.", "template_key": "product_comparison"},
+        json={"user_request": "Compare two AI workflow tools.", "template_key": "generic"},
     )
 
     assert response.status_code == 200
@@ -93,7 +93,7 @@ def test_run_trace_and_usage_endpoints_return_inspection_data() -> None:
     create_response = client.post(
         "/api/runs",
         headers=headers,
-        json={"user_request": "Find me a car under $500.", "template_key": "product_comparison"},
+        json={"user_request": "Research practical AI workflow tools.", "template_key": "generic"},
     )
     run_id = create_response.json()["id"]
 
