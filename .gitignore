@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+.env.local
+.DS_Store
+node_modules/
+.next/
+out/
+dist/
+coverage/
