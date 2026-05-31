@@ -1,10 +1,12 @@
 import pytest
 
+from app.core.config import settings
 from app.tools.search import ControlledSearchTool
 
 
 @pytest.mark.asyncio
-async def test_controlled_search_limits_results_and_returns_context() -> None:
+async def test_controlled_search_limits_results_and_returns_context(monkeypatch) -> None:
+    monkeypatch.setattr(settings, "search_provider", "mock")
     tool = ControlledSearchTool()
 
     results = await tool.search("AI workflow tools", limit=20)

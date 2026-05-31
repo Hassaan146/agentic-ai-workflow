@@ -78,7 +78,7 @@ flowchart LR
     D --> J["Runs, Traces, Outputs, Usage Logs"]
 ```
 
-## Example Flow: Find Me A Car Under $500
+## Example Flow: Compare AI Workflow Tools
 
 ```mermaid
 flowchart TD

@@ -155,7 +155,7 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
             continue
 
         if task.agent_type == "search":
-            results = await search_tool.search(task.instructions, limit=3)
+            results = await search_tool.search(structured.goal, limit=5)
             fact_count = sum(len(result.facts) for result in results)
             outputs.append(
                 build_agent_output(
@@ -200,9 +200,10 @@ async def final_response(state: WorkflowState) -> WorkflowState:
     for output in outputs:
         sources.extend(output.data.get("sources", []))
 
+    answer = await _compose_final_answer(structured.goal, outputs, sources)
     final = FinalOutput(
-        title=f"Evidence-based result for: {structured.goal[:80]}",
-        answer=_compose_final_answer(structured.goal, outputs, sources),
+        title=f"Research brief: {structured.goal[:80]}",
+        answer=answer,
         sources=[
             {
                 "title": source.get("title", "Untitled source"),
@@ -218,6 +219,7 @@ async def final_response(state: WorkflowState) -> WorkflowState:
             for output in outputs
         ],
     )
+    _log_usage(state["run_id"], state["repository"], get_model_provider(), "final_response", structured.goal, answer)
     return {**state, "final_output": final}
 
 
@@ -230,26 +232,59 @@ def _extract_constraints(request: str) -> list[str]:
     return constraints
 
 
-def _compose_final_answer(goal: str, outputs: list[AgentOutput], sources: list[dict[str, Any]]) -> str:
+async def _compose_final_answer(goal: str, outputs: list[AgentOutput], sources: list[dict[str, Any]]) -> str:
     completed_agents = ", ".join(output.agent_name for output in outputs)
-    factual_lines = []
-    for source in sources:
-        title = source.get("title", "Untitled source")
-        url = source.get("url", "")
+    source_context = _format_source_context(sources)
+    if not source_context:
+        return (
+            f"Research request: {goal}\n\n"
+            "No live source facts were available. Check that SEARCH_PROVIDER=duckduckgo and that the backend has network access. "
+            f"Agents completed: {completed_agents}."
+        )
+
+    provider = get_model_provider()
+    prompt = (
+        "Write a concise research brief using only the source facts below. "
+        "Do not invent facts. If the sources are weak, say so. "
+        "Include these sections: Overview, Past, Present, Future, Sustainability, Bottom line, Sources used.\n\n"
+        f"User request: {goal}\n\n"
+        f"Source facts:\n{source_context}"
+    )
+    try:
+        answer = await _complete_with_retry(provider, prompt, purpose="writing")
+        if "Deterministic writing response" not in answer:
+            return answer
+    except Exception:
+        pass
+
+    return _compose_fallback_research_answer(goal, completed_agents, source_context)
+
+
+def _format_source_context(sources: list[dict[str, Any]]) -> str:
+    blocks = []
+    for index, source in enumerate(sources[:5], start=1):
         facts = source.get("facts", [])
-        if facts:
-            factual_lines.append(f"- {title} ({url}): {facts[0]}")
+        fact_text = "\n".join(f"  - {fact}" for fact in facts[:4])
+        if not fact_text:
+            continue
+        blocks.append(
+            f"[{index}] {source.get('title', 'Untitled source')}\n"
+            f"URL: {source.get('url', '')}\n"
+            f"Context: {source.get('source_context', '')}\n"
+            f"Facts:\n{fact_text}"
+        )
+    return "\n\n".join(blocks)
 
-    if not factual_lines:
-        factual_context = "No scraped source facts were available. Set SEARCH_PROVIDER=duckduckgo for live source-backed research."
-    else:
-        factual_context = "Raw source context used:\n" + "\n".join(factual_lines[:5])
 
+def _compose_fallback_research_answer(goal: str, completed_agents: str, source_context: str) -> str:
     return (
-        f"The workflow completed the request: '{goal}'. "
-        f"It ran prerequisite-aware tasks through these agents: {completed_agents}. "
-        "The final answer is grounded in the source context below rather than unsupported model opinion.\n\n"
-        f"{factual_context}"
+        f"Overview\nThe workflow researched: {goal}. The answer below is built from scraped source facts, not unsupported model opinion.\n\n"
+        "Past\nUse the source context to identify historical milestones and early development.\n\n"
+        "Present\nUse the source context to describe the current market/product state and adoption signals.\n\n"
+        "Future\nUse the source context to describe likely future direction, while avoiding certainty where sources are limited.\n\n"
+        "Sustainability\nUse the source context to separate sustainability claims from verified facts.\n\n"
+        f"Bottom line\nAgents completed: {completed_agents}. The strongest available evidence is listed below.\n\n"
+        f"Sources used\n{source_context}"
     )
 
 
