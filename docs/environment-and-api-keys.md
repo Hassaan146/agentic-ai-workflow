@@ -84,31 +84,35 @@ Used for:
 - Fast model calls
 - Request structuring
 - Routing-style tasks
-
-Where to place key:
-
-- Backend only: `backend/.env`
-
-```env
-GROQ_API_KEY=your_groq_api_key
-DEFAULT_FAST_MODEL=llama-3.1-8b-instant
-```
-
-## Google AI Studio / Gemini
-
-Used for:
-
 - Reasoning
 - Synthesis
 - Final answer generation
 
+Where to place keys:
+
+- Backend only: `backend/.env`
+
+Use two Groq keys if you have them. The first key is for fast routing/structuring work. The second key is for heavier reasoning and writing work.
+
+```env
+GROQ_API_KEY=your_fast_groq_api_key
+GROQ_REASONING_API_KEY=your_reasoning_groq_api_key
+DEFAULT_FAST_MODEL=llama-3.1-8b-instant
+DEFAULT_REASONING_MODEL=llama-3.3-70b-versatile
+```
+
+You can also use only one Groq key by setting `GROQ_API_KEY` and leaving `GROQ_REASONING_API_KEY` empty.
+
+## Google AI Studio / Gemini
+
+Optional. Leave this empty if you want to use Groq only.
+
 Where to place key:
 
 - Backend only: `backend/.env`
 
 ```env
-GOOGLE_API_KEY=your_google_ai_studio_key
-DEFAULT_REASONING_MODEL=gemini-1.5-flash
+GOOGLE_API_KEY=
 ```
 
 ## Search Provider
@@ -148,11 +152,12 @@ BACKEND_CORS_ORIGINS=https://your-vercel-app.vercel.app
 CLERK_JWKS_URL=https://your-clerk-domain/.well-known/jwks.json
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-GROQ_API_KEY=your_groq_api_key
-GOOGLE_API_KEY=your_google_ai_studio_key
+GROQ_API_KEY=your_fast_groq_api_key
+GROQ_REASONING_API_KEY=your_reasoning_groq_api_key
+GOOGLE_API_KEY=
 SEARCH_PROVIDER=duckduckgo
 DEFAULT_FAST_MODEL=llama-3.1-8b-instant
-DEFAULT_REASONING_MODEL=gemini-1.5-flash
+DEFAULT_REASONING_MODEL=llama-3.3-70b-versatile
 ```
 
 ## Vercel Frontend Environment Variables
@@ -171,5 +176,5 @@ NEXT_PUBLIC_API_BASE_URL=https://your-render-backend.onrender.com
 - Render: backend secrets, model keys, Supabase service role key, Clerk JWKS URL.
 - Supabase: run the SQL schema, then copy URL and service role key into Render.
 - Clerk: copy publishable key into Vercel and JWKS URL into Render.
-- Groq: copy API key into Render as `GROQ_API_KEY`.
-- Google AI Studio: copy API key into Render as `GOOGLE_API_KEY`.
+- Groq: copy keys into Render as `GROQ_API_KEY` and optionally `GROQ_REASONING_API_KEY`.
+- Google AI Studio: optional; only set `GOOGLE_API_KEY` if you want Gemini instead of Groq-only testing.

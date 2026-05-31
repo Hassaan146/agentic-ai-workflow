@@ -15,10 +15,11 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_service_role_key: str = ""
     groq_api_key: str = ""
+    groq_reasoning_api_key: str = ""
     google_api_key: str = ""
     search_provider: Literal["mock", "duckduckgo"] = "mock"
     default_fast_model: str = "llama-3.1-8b-instant"
-    default_reasoning_model: str = "gemini-1.5-flash"
+    default_reasoning_model: str = "llama-3.3-70b-versatile"
 
     @cached_property
     def cors_origins(self) -> list[str]:
