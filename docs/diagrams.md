@@ -24,7 +24,8 @@ flowchart TD
     L --> M{"Complete and Consistent?"}
     M -->|No| E
     M -->|Yes| N["Final Response Agent"]
-    N --> O["User Output + Execution Trace"]
+    N --> P["Response Preference Formatter"]
+    P --> O["User Output + Execution Trace"]
 ```
 
 ## LangGraph State Graph
@@ -45,7 +46,8 @@ stateDiagram-v2
     ExecuteExtraction --> VerifyOutput
     VerifyOutput --> RouteTasks : missing or weak output
     VerifyOutput --> FinalResponse : output accepted
-    FinalResponse --> [*]
+    FinalResponse --> FormatForUser
+    FormatForUser --> [*]
 ```
 
 ## Agent Responsibility Map
@@ -62,6 +64,7 @@ flowchart LR
     G["Comparison Agent"] --> G1["Compares options against criteria"]
     H["Verifier Agent"] --> H1["Checks completeness and consistency"]
     I["Final Response Agent"] --> I1["Creates polished user answer"]
+    K["Response Preference Formatter"] --> K1["Shapes answer into the user's desired format"]
 ```
 
 
@@ -91,6 +94,37 @@ flowchart TD
     F --> G["Next Agent"]
 ```
 
+## User-Preferred Response Layer
+
+```mermaid
+flowchart TD
+    A["Verified Agent Result"] --> B["Final TOON Handoff"]
+    C["User Response Preference"] --> D["Response Formatter"]
+    B --> D
+    D --> E{"Desired Output Type"}
+    E -->|Brief| F["Concise Executive Summary"]
+    E -->|Deep Dive| G["Detailed Report"]
+    E -->|Action| H["Checklist or Plan"]
+    E -->|Social| I["LinkedIn-ready Post"]
+    E -->|Data| J["Table or Structured Output"]
+    F --> K["Valid, Useful Final Answer"]
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+```
+
+## Response Quality Loop
+
+```mermaid
+flowchart LR
+    A["User Feedback"] --> B["Preference Research"]
+    B --> C["Response Format Library"]
+    C --> D["Formatter Agent"]
+    D --> E["Better User-fit Responses"]
+    E --> A
+```
+
 ## Tech Architecture
 
 ```mermaid
@@ -105,6 +139,7 @@ flowchart LR
     F --> I["Controlled Web Search"]
     E --> K["TOON Internal Handoffs"]
     K --> F
+    E --> L["Response Preference Formatter"]
     D --> J["Runs, Traces, Outputs, Usage Logs"]
 ```
 
@@ -122,5 +157,7 @@ flowchart TD
     H --> I["Verifier Checks Completeness"]
     I --> Q{"Any valid result?"}
     Q -->|No| R["Return honest limitation and alternatives"]
-    Q -->|Yes| S["Final Suggestions With Sources"]
+    Q -->|Yes| S["Final TOON Handoff"]
+    S --> T["Format For User Preference"]
+    T --> U["Final Suggestions With Sources"]
 ```
