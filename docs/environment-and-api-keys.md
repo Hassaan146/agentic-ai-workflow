@@ -121,7 +121,7 @@ Backend only:
 SEARCH_PROVIDER=mock
 ```
 
-Use `mock` for local testing and portfolio demos without network dependency. Use `duckduckgo` when you want the MVP to fetch real public search-style results without adding another paid key.
+Use `mock` for local testing and portfolio demos without network dependency. Use `duckduckgo` when you want the MVP to fetch real public search-style results and scrape returned pages without adding another paid key. For production, use `duckduckgo`.
 
 ## Frontend API URL
 
@@ -150,7 +150,7 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 GROQ_API_KEY=your_groq_api_key
 GOOGLE_API_KEY=your_google_ai_studio_key
-SEARCH_PROVIDER=mock
+SEARCH_PROVIDER=duckduckgo
 DEFAULT_FAST_MODEL=llama-3.1-8b-instant
 DEFAULT_REASONING_MODEL=gemini-1.5-flash
 ```

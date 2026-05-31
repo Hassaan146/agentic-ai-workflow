@@ -131,8 +131,33 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
         </div>
 
         <div className="panel">
+          <h2>Final output</h2>
+          {!run && <p className="muted">Your answer will appear here after the workflow finishes.</p>}
+          {run && (
+            <div className="run-output">
+              <p className="status-pill">{run.status}</p>
+              <h3>{run.final_output?.title ?? "Workflow result"}</h3>
+              <p className="final-answer">{run.final_output?.answer ?? "The workflow is still preparing the final answer."}</p>
+              {!!run.final_output?.sources.length && (
+                <div className="inspection-block">
+                  <h3>Source context</h3>
+                  {run.final_output.sources.map((source, index) => (
+                    <article className="source-card" key={`${source.url}-${index}`}>
+                      <a href={source.url} target="_blank">{source.title}</a>
+                      {source.context && <small>{source.context}</small>}
+                      {source.summary && <p>{source.summary}</p>}
+                      {source.facts && <p><strong>Facts:</strong> {source.facts}</p>}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="panel recent-panel">
           <h2>Agent execution trace</h2>
-          {!run && !traces.length && <p className="muted">Start a workflow to see the trace and final output.</p>}
+          {!traces.length && <p className="muted">Agent steps will stream here while the workflow runs.</p>}
           {!!traces.length && (
             <div className="live-trace">
               {traces.map((trace) => (
@@ -144,30 +169,15 @@ export default function WorkflowRunner({ getToken }: WorkflowRunnerProps) {
               ))}
             </div>
           )}
-          {run && (
-            <div className="run-output">
-              <p className="status-pill">{run.status}</p>
-              <h3>{run.final_output?.title ?? "Workflow result"}</h3>
-              <p>{run.final_output?.answer}</p>
-              <div className="timeline">
-                {run.final_output?.trace_summary.map((item) => (
-                  <div className="timeline-item" key={item}>
-                    {item}
-                  </div>
-                ))}
-              </div>
-              {!!run.final_output?.sources.length && (
-                <div className="inspection-block">
-                  <h3>Sources</h3>
-                  {run.final_output.sources.map((source, index) => (
-                    <a href={source.url} key={`${source.url}-${index}`} target="_blank">
-                      {source.title}
-                    </a>
-                  ))}
+          {run?.final_output?.trace_summary.length ? (
+            <div className="timeline">
+              {run.final_output.trace_summary.map((item) => (
+                <div className="timeline-item" key={item}>
+                  {item}
                 </div>
-              )}
+              ))}
             </div>
-          )}
+          ) : null}
         </div>
 
         {run && (

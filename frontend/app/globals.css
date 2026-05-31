@@ -287,6 +287,22 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.final-answer {
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.source-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.source-card small,
+.source-card p {
+  margin: 0;
+}
+
 .inspection-grid {
   display: grid;
   gap: 18px;

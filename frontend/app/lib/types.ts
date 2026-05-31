@@ -6,7 +6,7 @@ export type RunCreateRequest = {
 export type FinalOutput = {
   title: string;
   answer: string;
-  sources: Array<{ title: string; url: string }>;
+  sources: Array<{ title: string; url: string; summary?: string; context?: string; facts?: string }>;
   trace_summary: string[];
 };
 

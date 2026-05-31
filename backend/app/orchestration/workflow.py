@@ -156,11 +156,12 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
 
         if task.agent_type == "search":
             results = await search_tool.search(task.instructions, limit=3)
+            fact_count = sum(len(result.facts) for result in results)
             outputs.append(
                 build_agent_output(
                     task=task,
                     agent_name="Search Agent",
-                    summary=f"Collected {len(results)} controlled search results.",
+                    summary=f"Collected {len(results)} sources and extracted {fact_count} raw facts with website context.",
                     extra_data={"sources": [result.model_dump() for result in results]},
                 )
             )
@@ -200,10 +201,16 @@ async def final_response(state: WorkflowState) -> WorkflowState:
         sources.extend(output.data.get("sources", []))
 
     final = FinalOutput(
-        title=f"Agentic result for: {structured.goal[:80]}",
-        answer=_compose_final_answer(structured.goal, outputs),
+        title=f"Evidence-based result for: {structured.goal[:80]}",
+        answer=_compose_final_answer(structured.goal, outputs, sources),
         sources=[
-            {"title": source["title"], "url": source["url"]}
+            {
+                "title": source.get("title", "Untitled source"),
+                "url": source.get("url", ""),
+                "summary": source.get("summary", ""),
+                "context": source.get("source_context", ""),
+                "facts": " | ".join(source.get("facts", [])[:3]),
+            }
             for source in sources[:5]
         ],
         trace_summary=[
@@ -223,12 +230,26 @@ def _extract_constraints(request: str) -> list[str]:
     return constraints
 
 
-def _compose_final_answer(goal: str, outputs: list[AgentOutput]) -> str:
+def _compose_final_answer(goal: str, outputs: list[AgentOutput], sources: list[dict[str, Any]]) -> str:
     completed_agents = ", ".join(output.agent_name for output in outputs)
+    factual_lines = []
+    for source in sources:
+        title = source.get("title", "Untitled source")
+        url = source.get("url", "")
+        facts = source.get("facts", [])
+        if facts:
+            factual_lines.append(f"- {title} ({url}): {facts[0]}")
+
+    if not factual_lines:
+        factual_context = "No scraped source facts were available. Set SEARCH_PROVIDER=duckduckgo for live source-backed research."
+    else:
+        factual_context = "Raw source context used:\n" + "\n".join(factual_lines[:5])
+
     return (
         f"The workflow completed the request: '{goal}'. "
         f"It ran prerequisite-aware tasks through these agents: {completed_agents}. "
-        "The verifier confirmed every planned task produced a structured output."
+        "The final answer is grounded in the source context below rather than unsupported model opinion.\n\n"
+        f"{factual_context}"
     )
 
 
