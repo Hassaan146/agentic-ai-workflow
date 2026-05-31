@@ -7,6 +7,7 @@ from langgraph.graph import END, StateGraph
 from app.llm.providers import get_model_provider
 from app.llm.prompts import agent_task_prompt, structure_request_prompt
 from app.orchestration.outputs import build_agent_output
+from app.orchestration.toon import to_toon
 from app.orchestration.planner import build_task_plan, order_tasks_by_prerequisites
 from app.schemas.workflow import (
     AgentOutput,
@@ -154,6 +155,8 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
         if any(dependency not in completed_ids for dependency in task.depends_on):
             continue
 
+        handoff_context = _dependency_handoff_context(task, outputs)
+
         if task.agent_type == "search":
             results = await search_tool.search(structured.goal, limit=5)
             fact_count = sum(len(result.facts) for result in results)
@@ -162,11 +165,15 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
                     task=task,
                     agent_name="Search Agent",
                     summary=f"Collected {len(results)} sources and extracted {fact_count} raw facts with website context.",
-                    extra_data={"sources": [result.model_dump() for result in results]},
+                    extra_data={
+                        "sources": [result.model_dump() for result in results],
+                        "input_handoff_format": "toon" if handoff_context else "none",
+                        "input_handoff": handoff_context,
+                    },
                 )
             )
         else:
-            prompt = agent_task_prompt(task, structured)
+            prompt = agent_task_prompt(task, structured, handoff_context=handoff_context)
             content = await _complete_with_retry(provider, prompt, purpose=task.agent_type)
             _log_usage(
                 state["run_id"],
@@ -185,6 +192,29 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
             )
 
     return {**state, "agent_outputs": outputs}
+
+
+def _dependency_handoff_context(task: WorkflowTask, outputs: list[AgentOutput]) -> str:
+    dependency_outputs = [output for output in outputs if output.task_id in task.depends_on]
+    if not dependency_outputs:
+        return ""
+    blocks = []
+    for output in dependency_outputs:
+        payload = output.data.get("toon_payload")
+        if payload:
+            blocks.append(str(payload))
+    if blocks:
+        return "\n---\n".join(blocks)
+    return to_toon(
+        [
+            {
+                "task_id": output.task_id,
+                "agent": output.agent_name,
+                "summary": output.summary,
+            }
+            for output in dependency_outputs
+        ]
+    )
 
 
 async def verify_output(state: WorkflowState) -> WorkflowState:
@@ -300,6 +330,7 @@ def _compact_state(state: WorkflowState) -> dict[str, Any]:
         compact["task_count"] = len(state["tasks"])
     if state.get("agent_outputs"):
         compact["agent_output_count"] = len(state["agent_outputs"])
+        compact["handoff_format"] = "toon"
     if state.get("final_output"):
         compact["final_output"] = state["final_output"].model_dump()
     return compact

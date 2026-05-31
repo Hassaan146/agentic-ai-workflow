@@ -5,13 +5,20 @@ def structure_request_prompt(user_request: str) -> str:
     return (
         "You are the Request Structuring Agent.\n"
         "Convert the user's messy request into structured intent.\n"
-        "Return JSON with goal, constraints, and expected_output.\n\n"
+        "Return TOON with goal, constraints, and expected_output.\n\n"
         f"User request:\n{user_request}"
     )
 
 
-def agent_task_prompt(task: WorkflowTask, structured_request: StructuredRequest) -> str:
+def agent_task_prompt(task: WorkflowTask, structured_request: StructuredRequest, handoff_context: str = "") -> str:
     dependencies = ", ".join(task.depends_on) if task.depends_on else "none"
+    handoff_block = ""
+    if handoff_context:
+        handoff_block = (
+            "\nPrerequisite handoff format: TOON (Token-Oriented Object Notation). "
+            "Use this compact handoff as factual context from previous agents:\n"
+            f"```toon\n{handoff_context}\n```\n"
+        )
     return (
         f"You are the {task.agent_type.title()} Agent.\n"
         "Complete only your assigned task and return concise structured findings.\n\n"
@@ -20,5 +27,5 @@ def agent_task_prompt(task: WorkflowTask, structured_request: StructuredRequest)
         f"Task title: {task.title}\n"
         f"Prerequisites completed: {dependencies}\n"
         f"Instructions: {task.instructions}"
+        f"{handoff_block}"
     )
-

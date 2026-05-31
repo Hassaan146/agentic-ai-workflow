@@ -164,22 +164,26 @@ class ControlledSearchTool:
     async def search(self, query: str, limit: int = 5) -> list[SearchResult]:
         safe_limit = max(1, min(limit, 5))
         if settings.search_provider == "duckduckgo":
-            raw_results: list[SearchResult] = []
-            for variant in _query_variants(query):
-                raw_results.extend(await self._duckduckgo_search(variant, safe_limit))
-                raw_results.extend(await self._duckduckgo_html_search(variant, safe_limit))
-                raw_results = _dedupe_results(raw_results)
-                if len(raw_results) >= safe_limit * 2:
-                    break
+            raw_results: list[SearchResult] = _seeded_results(query)
             if not raw_results:
                 for variant in _query_variants(query):
-                    raw_results.extend(await self._bing_html_search(variant, safe_limit))
+                    try:
+                        raw_results.extend(await self._duckduckgo_search(variant, safe_limit))
+                        raw_results.extend(await self._duckduckgo_html_search(variant, safe_limit))
+                    except httpx.HTTPError:
+                        continue
                     raw_results = _dedupe_results(raw_results)
                     if len(raw_results) >= safe_limit * 2:
                         break
-            seeded_results = _seeded_results(query)
-            if seeded_results:
-                raw_results = seeded_results
+            if not raw_results:
+                for variant in _query_variants(query):
+                    try:
+                        raw_results.extend(await self._bing_html_search(variant, safe_limit))
+                    except httpx.HTTPError:
+                        continue
+                    raw_results = _dedupe_results(raw_results)
+                    if len(raw_results) >= safe_limit * 2:
+                        break
             if raw_results:
                 scraped = await self._scrape_results(raw_results[: safe_limit * 2])
                 scraped.sort(key=lambda item: ("page scrape failed" in item.source_context.lower(), -len(item.facts)))

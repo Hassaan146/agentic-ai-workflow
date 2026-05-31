@@ -1,3 +1,4 @@
+from app.orchestration.toon import build_agent_handoff_payload
 from app.schemas.workflow import AgentOutput, WorkflowTask
 
 
@@ -16,6 +17,13 @@ def build_agent_output(
     }
     if extra_data:
         data.update(extra_data)
+    data["handoff_format"] = "toon"
+    data["toon_payload"] = build_agent_handoff_payload(
+        task_id=task.id,
+        agent_name=agent_name,
+        summary=summary,
+        data=data,
+    )
 
     return AgentOutput(
         task_id=task.id,

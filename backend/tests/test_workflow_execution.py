@@ -30,6 +30,9 @@ async def test_agentic_workflow_completes_with_trace() -> None:
     assert result.final_output.title
     assert result.final_output.trace_summary
     assert any("Comparison Agent" in item for item in result.final_output.trace_summary)
+    agent_outputs = [trace.output_payload for trace in traces if trace.node_key == "execute_agents" and trace.status == "completed"]
+    assert agent_outputs
+    assert agent_outputs[-1]["handoff_format"] == "toon"
     assert usage_logs
     assert {log.purpose for log in usage_logs}.issuperset({"structure", "reasoning", "comparison", "writing"})
     assert "structure_request" in completed_nodes

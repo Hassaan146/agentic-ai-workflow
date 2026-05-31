@@ -1,6 +1,6 @@
 # Agentic AI Workflow Diagrams
 
-These diagrams are designed for README documentation and LinkedIn posts.
+These diagrams are designed for README documentation and LinkedIn posts. Internal agent handoffs use TOON (Token-Oriented Object Notation) to reduce prompt tokens while preserving traceability.
 
 ## Main Product Workflow
 
@@ -15,7 +15,7 @@ flowchart TD
     E --> H["Comparison Agent"]
     E --> I["Extraction Agent"]
     E --> J["Writing Agent"]
-    F --> K["Structured Agent Outputs"]
+    F --> K["TOON Agent Handoff"]
     G --> K
     H --> K
     I --> K
@@ -52,8 +52,9 @@ stateDiagram-v2
 
 ```mermaid
 flowchart LR
-    A["Request Structuring Agent"] --> A1["Turns messy request into structured JSON"]
+    A["Request Structuring Agent"] --> A1["Turns messy request into structured intent"]
     B["Task Decomposition Agent"] --> B1["Splits request into smaller tasks"]
+    J["TOON Handoff Encoder"] --> J1["Compresses agent outputs before the next agent"]
     C["Prerequisite Analyzer"] --> C1["Finds task order and dependencies"]
     D["Orchestrator"] --> D1["Chooses which agent runs next"]
     E["Search Agent"] --> E1["Finds relevant external information"]
@@ -61,6 +62,33 @@ flowchart LR
     G["Comparison Agent"] --> G1["Compares options against criteria"]
     H["Verifier Agent"] --> H1["Checks completeness and consistency"]
     I["Final Response Agent"] --> I1["Creates polished user answer"]
+```
+
+
+## TOON Agent Handoff Flow
+
+```mermaid
+flowchart LR
+    A["Agent 1 Output"] --> B["TOON Encoder"]
+    B --> C["Compact TOON Payload"]
+    C --> D["Next Agent Prompt"]
+    D --> E["Agent 2 Uses Prior Evidence"]
+    E --> F["Lower-token Internal Context"]
+```
+
+## TOON Payload Shape
+
+```mermaid
+flowchart TD
+    A["Agent Output"] --> B["task_id"]
+    A --> C["agent"]
+    A --> D["summary"]
+    A --> E["sources as compact rows"]
+    B --> F["TOON Handoff"]
+    C --> F
+    D --> F
+    E --> F
+    F --> G["Next Agent"]
 ```
 
 ## Tech Architecture
@@ -75,6 +103,8 @@ flowchart LR
     F --> G["Groq Models"]
     F --> H["Google AI Studio / Gemini"]
     F --> I["Controlled Web Search"]
+    E --> K["TOON Internal Handoffs"]
+    K --> F
     D --> J["Runs, Traces, Outputs, Usage Logs"]
 ```
 
@@ -83,13 +113,14 @@ flowchart LR
 ```mermaid
 flowchart TD
     A["User: Compare two AI workflow tools"] --> B["Structure Request"]
-    B --> C["Extract Constraint: budget <= $500"]
+    B --> C["Encode Structured Intent as TOON"]
     C --> D["Analyze Prerequisites"]
     D --> E["Budget Filter Must Run Before Recommendation"]
-    E --> F["Search Agent Finds Candidate Cars"]
-    F --> G["Comparison Agent Filters By Price and Fit"]
-    G --> H["Verifier Checks Budget Constraint"]
-    H --> I{"Any valid result?"}
-    I -->|No| J["Return honest limitation and alternatives"]
-    I -->|Yes| K["Final Suggestions With Reasoning"]
+    E --> F["Search Agent Finds Source Evidence"]
+    F --> G["Search Output Encoded as TOON"]
+    G --> H["Comparison Agent Reads TOON Handoff"]
+    H --> I["Verifier Checks Completeness"]
+    I --> Q{"Any valid result?"}
+    Q -->|No| R["Return honest limitation and alternatives"]
+    Q -->|Yes| S["Final Suggestions With Sources"]
 ```
