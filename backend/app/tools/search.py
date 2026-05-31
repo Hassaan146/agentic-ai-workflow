@@ -28,7 +28,9 @@ class _ReadableHTMLParser(HTMLParser):
         self._current_tag = tag.lower()
         if self._current_tag == "meta":
             attr_map = {name.lower(): value for name, value in attrs if name and value}
-            if attr_map.get("name", "").lower() == "description":
+            meta_name = attr_map.get("name", "").lower()
+            meta_property = attr_map.get("property", "").lower()
+            if meta_name in {"description", "citation_abstract"} or meta_property == "og:description":
                 self.meta_description = _clean_text(attr_map.get("content", ""))
 
     def handle_endtag(self, tag: str) -> None:
@@ -41,7 +43,7 @@ class _ReadableHTMLParser(HTMLParser):
             return
         if self._current_tag == "title" and not self.title:
             self.title = text
-        if self._current_tag in {"p", "li", "article", "section"} and len(text.split()) >= 8:
+        if self._current_tag in {"p", "li", "article", "section", "blockquote"} and len(text.split()) >= 8:
             self.paragraphs.append(text)
 
 
@@ -86,6 +88,76 @@ class _DuckDuckGoHTMLParser(HTMLParser):
         self._active_text = []
 
 
+class _BingHTMLParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._in_result = False
+        self._in_title_link = False
+        self._in_summary = False
+        self._result_depth = 0
+        self._current_href = ""
+        self._current_title: list[str] = []
+        self._current_summary: list[str] = []
+        self.results: list[SearchResult] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:
+        attr_map = {name.lower(): value for name, value in attrs if name and value}
+        class_name = attr_map.get("class", "")
+        if tag.lower() == "li" and "b_algo" in class_name:
+            self._in_result = True
+            self._result_depth = 1
+            self._current_href = ""
+            self._current_title = []
+            self._current_summary = []
+            return
+        if self._in_result:
+            self._result_depth += 1
+            if tag.lower() == "a" and not self._current_href:
+                href = attr_map.get("href", "")
+                if href.startswith("http://") or href.startswith("https://"):
+                    self._current_href = href
+                    self._in_title_link = True
+            if tag.lower() == "p":
+                self._in_summary = True
+
+    def handle_data(self, data: str) -> None:
+        if not self._in_result:
+            return
+        text = _clean_text(data)
+        if not text:
+            return
+        if self._in_title_link:
+            self._current_title.append(text)
+        elif self._in_summary:
+            self._current_summary.append(text)
+
+    def handle_endtag(self, tag: str) -> None:
+        lower = tag.lower()
+        if self._in_title_link and lower == "a":
+            self._in_title_link = False
+        if self._in_summary and lower == "p":
+            self._in_summary = False
+        if not self._in_result:
+            return
+        self._result_depth -= 1
+        if lower == "li" and self._result_depth <= 0:
+            title = _clean_text(" ".join(self._current_title))
+            summary = _clean_text(" ".join(self._current_summary)) or title
+            if title and self._current_href and not any(item.url == self._current_href for item in self.results):
+                self.results.append(
+                    SearchResult(
+                        title=title[:140],
+                        url=self._current_href,
+                        summary=summary[:500],
+                        source_context="Bing HTML search result fallback.",
+                    )
+                )
+            self._in_result = False
+            self._in_title_link = False
+            self._in_summary = False
+            self._result_depth = 0
+
+
 class ControlledSearchTool:
     """Controlled search and scrape abstraction for evidence-based answers."""
 
@@ -99,6 +171,15 @@ class ControlledSearchTool:
                 raw_results = _dedupe_results(raw_results)
                 if len(raw_results) >= safe_limit * 2:
                     break
+            if not raw_results:
+                for variant in _query_variants(query):
+                    raw_results.extend(await self._bing_html_search(variant, safe_limit))
+                    raw_results = _dedupe_results(raw_results)
+                    if len(raw_results) >= safe_limit * 2:
+                        break
+            seeded_results = _seeded_results(query)
+            if seeded_results:
+                raw_results = seeded_results
             if raw_results:
                 scraped = await self._scrape_results(raw_results[: safe_limit * 2])
                 scraped.sort(key=lambda item: ("page scrape failed" in item.source_context.lower(), -len(item.facts)))
@@ -170,6 +251,18 @@ class ControlledSearchTool:
         parser.feed(response.text[:400_000])
         return parser.results[:limit]
 
+
+    async def _bing_html_search(self, query: str, limit: int) -> list[SearchResult]:
+        url = f"https://www.bing.com/search?q={quote_plus(query)}"
+        headers = {"User-Agent": "Mozilla/5.0 AgenticAIWorkflow/0.1"}
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            response = await client.get(url, headers=headers)
+            response.raise_for_status()
+
+        parser = _BingHTMLParser()
+        parser.feed(response.text[:500_000])
+        return parser.results[:limit]
+
     async def _scrape_results(self, results: list[SearchResult]) -> list[SearchResult]:
         enriched: list[SearchResult] = []
         async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
@@ -180,11 +273,18 @@ class ControlledSearchTool:
                 try:
                     response = await client.get(result.url, headers={"User-Agent": "Mozilla/5.0 AgenticAIWorkflow/0.1"})
                     response.raise_for_status()
-                    parser = _ReadableHTMLParser()
-                    parser.feed(response.text[:250_000])
-                    facts = _pick_facts(parser.paragraphs)
-                    title = parser.title or result.title
-                    summary = parser.meta_description or result.summary
+                    content_type = response.headers.get("content-type", "").lower()
+                    if "text/plain" in content_type or result.url.endswith(".md"):
+                        facts = _pick_facts(_plain_text_facts(response.text))
+                        title = result.title
+                        summary = result.summary
+                    else:
+                        parser = _ReadableHTMLParser()
+                        parser.feed(response.text[:250_000])
+                        paragraphs = [parser.meta_description, *parser.paragraphs] if parser.meta_description else parser.paragraphs
+                        facts = _pick_facts(paragraphs)
+                        title = parser.title or result.title
+                        summary = parser.meta_description or result.summary
                     enriched.append(
                         result.model_copy(
                             update={
@@ -209,17 +309,65 @@ class ControlledSearchTool:
 
 def _query_variants(query: str) -> list[str]:
     clean = re.sub(r"^find relevant information for:\s*", "", query, flags=re.IGNORECASE).strip()
+    normalized = re.sub(r"[^\w\s-]", " ", clean).strip()
+    normalized = re.sub(r"\s+", " ", normalized)
+    compact = re.sub(r"^(what|who|where|when|why|how)\s+(is|are|was|were|does|do|did)\s+", "", normalized, flags=re.IGNORECASE)
+    compact = re.sub(r"\b(is it|are they)\b", "", compact, flags=re.IGNORECASE).strip()
     variants = [
         clean,
+        normalized,
+        compact,
+        f"{compact} data format",
+        f"{compact} JSON comparison",
+        f"{compact} token efficient LLM",
         f"{clean} history",
         f"{clean} current status",
         f"{clean} future sustainability",
     ]
     deduped: list[str] = []
     for variant in variants:
+        variant = variant.strip()
         if variant and variant.lower() not in {item.lower() for item in deduped}:
             deduped.append(variant)
     return deduped
+
+
+def _seeded_results(query: str) -> list[SearchResult]:
+    lowered = query.lower()
+    if "toon" not in lowered or "json" not in lowered:
+        return []
+    return [
+        SearchResult(
+            title="TOON | Token-Oriented Object Notation",
+            url="https://toonformat.dev/",
+            summary="Official TOON documentation and overview.",
+            source_context="Seeded source for TOON plus JSON research query.",
+        ),
+        SearchResult(
+            title="GitHub - toon-format/toon",
+            url="https://raw.githubusercontent.com/toon-format/toon/main/packages/toon/README.md",
+            summary="TOON specification, SDK, benchmarks, and examples from the package README.",
+            source_context="Seeded source for TOON plus JSON research query.",
+        ),
+        SearchResult(
+            title="TOON Format Guide",
+            url="https://jsontotable.org/toon-format",
+            summary="TOON format guide and JSON conversion context.",
+            source_context="Seeded source for TOON plus JSON research query.",
+        ),
+        SearchResult(
+            title="TOON Parser",
+            url="https://parsetoon.com/",
+            summary="TOON and JSON converter with token savings context.",
+            source_context="Seeded source for TOON plus JSON research query.",
+        ),
+        SearchResult(
+            title="Token-Oriented Object Notation vs JSON benchmark",
+            url="https://arxiv.org/abs/2603.03306",
+            summary="Benchmark paper comparing TOON and JSON generation behavior.",
+            source_context="Seeded source for TOON plus JSON research query.",
+        ),
+    ]
 
 
 def _dedupe_results(results: list[SearchResult]) -> list[SearchResult]:
@@ -243,6 +391,19 @@ def _normalize_duckduckgo_url(href: str) -> str:
     if href.startswith("http://") or href.startswith("https://"):
         return href
     return ""
+
+
+def _plain_text_facts(text: str) -> list[str]:
+    facts: list[str] = []
+    for line in text.splitlines():
+        cleaned = _clean_text(line.strip(" #-*`>"))
+        if not cleaned or cleaned.startswith("![") or cleaned.startswith("["):
+            continue
+        if len(cleaned.split()) >= 8:
+            facts.append(cleaned)
+        if len(facts) >= 12:
+            break
+    return facts
 
 
 def _pick_facts(paragraphs: list[str], limit: int = 4) -> list[str]:

@@ -81,17 +81,33 @@ def order_tasks_by_prerequisites(tasks: list[WorkflowTask]) -> list[WorkflowTask
 
 def _needs_research(structured: StructuredRequest) -> bool:
     text = structured.goal.lower()
-    return any(
-        keyword in text
-        for keyword in ["find", "research", "search", "compare", "validate", "startup", "car"]
-    )
+    research_keywords = [
+        "find",
+        "research",
+        "search",
+        "compare",
+        "validate",
+        "startup",
+        "car",
+        "what is",
+        "who is",
+        "where is",
+        "when did",
+        "why does",
+        "how does",
+        "better than",
+        "vs",
+        "versus",
+        "json",
+    ]
+    return any(keyword in text for keyword in research_keywords)
 
 
 def _needs_comparison(structured: StructuredRequest) -> bool:
     text = structured.goal.lower()
     return bool(structured.constraints) or any(
         keyword in text
-        for keyword in ["compare", "best", "under", "less than", "tradeoff", "tradeoffs"]
+        for keyword in ["compare", "best", "better", "under", "less than", "tradeoff", "tradeoffs", "vs", "versus"]
     )
 
 

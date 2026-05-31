@@ -53,3 +53,15 @@ def test_dependency_cycle_is_rejected() -> None:
 
     with pytest.raises(ValueError, match="cycle"):
         order_tasks_by_prerequisites(tasks)
+
+
+def test_factual_what_is_question_includes_research_before_synthesis() -> None:
+    structured = StructuredRequest(
+        original_request="what is toon, is it better than json",
+        goal="what is toon, is it better than json",
+    )
+
+    plan = build_task_plan(structured)
+
+    assert "task_research" in plan.execution_order
+    assert plan.execution_order.index("task_research") < plan.execution_order.index("task_synthesis")
