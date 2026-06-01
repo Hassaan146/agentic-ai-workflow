@@ -8,6 +8,12 @@
 
 body {
   max-width: 100%;
+  background: #070B10;
+  color: #F9F9F9;
+}
+
+h1, h2, p {
+  color: #F9F9F9;
 }
 
 h2 {
@@ -41,7 +47,7 @@ Internal agent handoffs use TOON (Token-Oriented Object Notation) to reduce prom
 ## Main Product Workflow
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["User prompt"] --> B["Structure request"]
     B --> C["Plan tasks"]
@@ -55,6 +61,15 @@ flowchart TD
     I -->|Yes| J["Final response"]
     J --> K["Format for user"]
     K --> L["Output + trace"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,L primary;
+    class B,C,D,E,F,H,J,K dark;
+    class G toon;
+    class I decision;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -64,7 +79,7 @@ flowchart TD
 ## Agent Routing Layer
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["LangGraph Orchestrator"] --> B["Search Agent"]
     A --> C["Reasoning Agent"]
@@ -77,6 +92,14 @@ flowchart TD
     E --> G
     F --> G
     G --> H["Verifier"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,H primary;
+    class B,C,D,E,F dark;
+    class G toon;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -86,7 +109,7 @@ flowchart TD
 ## LangGraph State Graph
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'noteBkgColor': '#F9F9F9', 'noteTextColor': '#101418'}}}%%
 stateDiagram-v2
     [*] --> StructureRequest
     StructureRequest --> DecomposeTasks
@@ -108,7 +131,7 @@ stateDiagram-v2
 ## Agent Responsibility Map
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["Structuring"] --> A1["Convert prompt into intent"]
     B["Planning"] --> B1["Split into tasks"]
@@ -118,6 +141,15 @@ flowchart TD
     F["TOON Encoder"] --> F1["Compress handoffs"]
     G["Verifier"] --> G1["Check completeness"]
     H["Formatter"] --> H1["Match user response style"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,B,C,D,E,G,H primary;
+    class A1,B1,C1,D1,E1,G1,H1 dark;
+    class F toon;
+    class F1 dark;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -127,12 +159,20 @@ flowchart TD
 ## TOON Agent Handoff Flow
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart LR
     A["Agent output"] --> B["TOON encoder"]
     B --> C["Compact payload"]
     C --> D["Next agent prompt"]
     D --> E["Better context"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,E primary;
+    class B,C toon;
+    class D dark;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -142,7 +182,7 @@ flowchart LR
 ## TOON Payload Shape
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["Agent output"] --> B["task_id"]
     A --> C["agent"]
@@ -153,6 +193,14 @@ flowchart TD
     D --> F
     E --> F
     F --> G["Next agent"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,G primary;
+    class B,C,D,E dark;
+    class F toon;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -162,7 +210,7 @@ flowchart TD
 ## User-Preferred Response Layer
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["Verified result"] --> B["Final TOON handoff"]
     C["User preference"] --> D["Response formatter"]
@@ -178,6 +226,15 @@ flowchart TD
     H --> K
     I --> K
     J --> K
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,K primary;
+    class B toon;
+    class C,D,F,G,H,I,J dark;
+    class E decision;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -187,13 +244,20 @@ flowchart TD
 ## Response Quality Loop
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart LR
     A["User feedback"] --> B["Preference research"]
     B --> C["Format library"]
     C --> D["Formatter agent"]
     D --> E["Better responses"]
     E --> A
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,E primary;
+    class B,C,D dark;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -203,7 +267,7 @@ flowchart LR
 ## Tech Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["Next.js frontend"] --> B["FastAPI backend"]
     B --> C["Auth"]
@@ -216,6 +280,14 @@ flowchart TD
     E --> J["TOON handoffs"]
     E --> K["Response formatter"]
     D --> L["Runs + traces"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,B,L primary;
+    class C,D,E,F,G,H,I,K dark;
+    class J toon;
 ```
 
 <div style="break-after: page; page-break-after: always;"></div>
@@ -225,7 +297,7 @@ flowchart TD
 ## Example Flow
 
 ```mermaid
-%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px', 'primaryColor': '#228B22', 'primaryTextColor': '#F9F9F9', 'primaryBorderColor': '#16651A', 'lineColor': '#D99A2B', 'secondaryColor': '#F9F9F9', 'secondaryTextColor': '#101418', 'secondaryBorderColor': '#D99A2B', 'tertiaryColor': '#0B0F14', 'tertiaryTextColor': '#F9F9F9', 'tertiaryBorderColor': '#2A2F36', 'background': '#070B10', 'mainBkg': '#228B22', 'secondBkg': '#F9F9F9', 'textColor': '#F9F9F9', 'edgeLabelBackground': '#0B0F14'}}}%%
 flowchart TD
     A["Custom user prompt"] --> B["Structure intent"]
     B --> C["Encode intent as TOON"]
@@ -239,4 +311,13 @@ flowchart TD
     I -->|Yes| J["Final TOON handoff"]
     J --> K["User format"]
     K --> L["Final answer"]
+
+    classDef primary fill:#228B22,stroke:#16651A,color:#F9F9F9,stroke-width:2px;
+    classDef dark fill:#0B0F14,stroke:#2A2F36,color:#F9F9F9,stroke-width:1.5px;
+    classDef toon fill:#F9F9F9,stroke:#D99A2B,color:#16651A,stroke-width:2px;
+    classDef decision fill:#F9F9F9,stroke:#D99A2B,color:#101418,stroke-width:2px;
+    class A,L primary;
+    class B,D,E,G,H,K dark;
+    class C,F,J toon;
+    class I decision;
 ```
