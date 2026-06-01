@@ -1,5 +1,39 @@
 # Agentic AI Workflow Diagrams
 
+<style>
+@page {
+  size: A4 landscape;
+  margin: 12mm;
+}
+
+body {
+  max-width: 100%;
+}
+
+h2 {
+  break-before: page;
+  page-break-before: always;
+  margin-top: 0;
+}
+
+h2:first-of-type {
+  break-before: auto;
+  page-break-before: auto;
+}
+
+pre, svg, .mermaid {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  max-width: 100% !important;
+  max-height: 165mm !important;
+}
+
+.mermaid svg {
+  max-width: 100% !important;
+  height: auto !important;
+}
+</style>
+
 These diagrams are designed for README documentation and LinkedIn PDF carousel posts. Each section is kept to one export page so the rendered PDF does not cut diagrams in half.
 
 Internal agent handoffs use TOON (Token-Oriented Object Notation) to reduce prompt tokens while preserving traceability.
@@ -7,6 +41,7 @@ Internal agent handoffs use TOON (Token-Oriented Object Notation) to reduce prom
 ## Main Product Workflow
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["User prompt"] --> B["Structure request"]
     B --> C["Plan tasks"]
@@ -22,11 +57,14 @@ flowchart TD
     K --> L["Output + trace"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## Agent Routing Layer
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["LangGraph Orchestrator"] --> B["Search Agent"]
     A --> C["Reasoning Agent"]
@@ -41,11 +79,14 @@ flowchart TD
     G --> H["Verifier"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## LangGraph State Graph
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'fontSize': '13px'}}}%%
 stateDiagram-v2
     [*] --> StructureRequest
     StructureRequest --> DecomposeTasks
@@ -60,11 +101,14 @@ stateDiagram-v2
     FormatForUser --> [*]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## Agent Responsibility Map
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["Structuring"] --> A1["Convert prompt into intent"]
     B["Planning"] --> B1["Split into tasks"]
@@ -76,11 +120,14 @@ flowchart TD
     H["Formatter"] --> H1["Match user response style"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## TOON Agent Handoff Flow
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart LR
     A["Agent output"] --> B["TOON encoder"]
     B --> C["Compact payload"]
@@ -88,11 +135,14 @@ flowchart LR
     D --> E["Better context"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## TOON Payload Shape
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["Agent output"] --> B["task_id"]
     A --> C["agent"]
@@ -105,11 +155,14 @@ flowchart TD
     F --> G["Next agent"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## User-Preferred Response Layer
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["Verified result"] --> B["Final TOON handoff"]
     C["User preference"] --> D["Response formatter"]
@@ -127,11 +180,14 @@ flowchart TD
     J --> K
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## Response Quality Loop
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart LR
     A["User feedback"] --> B["Preference research"]
     B --> C["Format library"]
@@ -140,11 +196,14 @@ flowchart LR
     E --> A
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## Tech Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["Next.js frontend"] --> B["FastAPI backend"]
     B --> C["Auth"]
@@ -159,11 +218,14 @@ flowchart TD
     D --> L["Runs + traces"]
 ```
 
-<div style="page-break-after: always;"></div>
+<div style="break-after: page; page-break-after: always;"></div>
+
+<!-- pagebreak -->
 
 ## Example Flow
 
 ```mermaid
+%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 18, 'rankSpacing': 24, 'curve': 'linear'}, 'themeVariables': {'fontSize': '13px'}}}%%
 flowchart TD
     A["Custom user prompt"] --> B["Structure intent"]
     B --> C["Encode intent as TOON"]
