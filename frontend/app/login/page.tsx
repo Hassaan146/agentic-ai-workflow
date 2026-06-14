@@ -1,7 +1,33 @@
+"use client";
+
 import { ArrowUpRight, LockKeyhole, Mail } from "lucide-react";
 import Link from "next/link";
+import { FormEvent, useState } from "react";
+import { login } from "../lib/api";
 
 export default function LoginPage() {
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    setIsSubmitting(true);
+    setError("");
+    try {
+      const result = await login({
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? "")
+      });
+      localStorage.setItem("agentic_auth_token", result.access_token);
+      window.location.href = "/dashboard";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <main className="auth-screen">
       <AuthVideo />
@@ -12,10 +38,11 @@ export default function LoginPage() {
           <h1>Enter the orchestration cockpit.</h1>
           <span>Continue to your previous chats, live agent traces, and workflow runs.</span>
         </div>
-        <form className="auth-form liquid-glass" action="/dashboard">
-          <label><Mail size={18} /> Email<input name="email" placeholder="you@example.com" type="email" /></label>
-          <label><LockKeyhole size={18} /> Password<input name="password" placeholder="••••••••" type="password" /></label>
-          <button className="glass-button strong" type="submit">Login <ArrowUpRight size={18} /></button>
+        <form className="auth-form liquid-glass" onSubmit={handleSubmit}>
+          <label><Mail size={18} /> Email<input name="email" placeholder="you@example.com" required type="email" /></label>
+          <label><LockKeyhole size={18} /> Password<input name="password" placeholder="????????" required type="password" /></label>
+          <button className="glass-button strong" disabled={isSubmitting} type="submit">{isSubmitting ? "Logging in" : "Login"} <ArrowUpRight size={18} /></button>
+          {error && <p className="error-text">{error}</p>}
           <p>New here? <Link href="/signup">Create an account</Link></p>
         </form>
       </section>

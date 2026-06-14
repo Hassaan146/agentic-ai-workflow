@@ -16,7 +16,7 @@ Checked stack foundations:
 - Backend virtual environment exists.
 - FastAPI app compiles.
 - Environment mode supports `dev` and `production`.
-- Production mode blocks missing Clerk/Supabase settings.
+- Production mode blocks missing FastAPI auth/Supabase settings.
 
 ## Phase 3
 

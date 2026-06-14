@@ -1,8 +1,7 @@
-import ClerkDashboard from "./ui/clerk-dashboard";
-import DevDashboard from "./ui/dev-dashboard";
+"use client";
+
+import WorkflowRunner from "./ui/workflow-runner";
 
 export default function DashboardPage() {
-  const authMode = process.env.NEXT_PUBLIC_AUTH_MODE ?? "dev";
-  return authMode === "dev" ? <DevDashboard /> : <ClerkDashboard />;
+  return <WorkflowRunner getToken={async () => localStorage.getItem("agentic_auth_token")} />;
 }
-

@@ -28,7 +28,7 @@ Agentic AI Workflow is a multi-agent workflow platform where users enter an unst
 - Backend: FastAPI and Pydantic.
 - Orchestration: LangGraph.
 - LLM/tool layer: LangChain.
-- Auth: Clerk.
+- Auth: FastAPI auth.
 - Database: Supabase Postgres.
 - Model providers: Groq and Google AI Studio/Gemini.
 - Deployment: Vercel frontend and Render backend.
@@ -54,7 +54,7 @@ Known note:
 
 ## Next Execution Steps
 
-1. Connect real Clerk, Supabase, Groq, and Gemini environment variables.
+1. Connect real FastAPI auth, Supabase, Groq, and Gemini environment variables.
 2. Replace the temporary frontend styling with the user's final frontend form/design.
 3. Switch `SEARCH_PROVIDER` from `mock` to `duckduckgo` when real public source fetching is desired.
 4. Start deployment to Vercel and Render after keys are configured.

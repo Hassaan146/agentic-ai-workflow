@@ -5,7 +5,7 @@ Testing will happen during every coding phase, not only before deployment.
 ## Backend
 
 - FastAPI health and workflow route tests.
-- Clerk authentication verification tests.
+- FastAPI auth authentication verification tests.
 - Supabase repository tests.
 - Pydantic request and output validation tests.
 - LangGraph route/order tests.
@@ -15,7 +15,7 @@ Testing will happen during every coding phase, not only before deployment.
 ## Frontend
 
 - Dashboard render checks.
-- Login/logout flow checks with Clerk.
+- Login/logout flow checks with FastAPI auth.
 - Workflow request form checks.
 - Agent trace and final output display checks.
 - Empty, loading, success, and error state checks.
@@ -32,7 +32,7 @@ Testing will happen during every coding phase, not only before deployment.
 
 - Vercel frontend reaches Render backend.
 - Render backend reaches Supabase.
-- Clerk works in production.
+- FastAPI auth works in production.
 - CORS and environment variables are correct.
 - A full workflow run succeeds online.
 

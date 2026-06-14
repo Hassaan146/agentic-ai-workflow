@@ -28,12 +28,12 @@ What was created:
 
 - Python virtual environment: `.venv`.
 - Explicit backend environment mode: `APP_ENV=dev` or `APP_ENV=production`.
-- Production readiness guard for Clerk and Supabase settings.
+- Production readiness guard for FastAPI auth and Supabase settings.
 - Local development auth mode through `dev-token`.
 - Backend dependency file: `backend/requirements.txt`.
 - Frontend dependency file: `frontend/package.json`.
 - FastAPI app entrypoint: `backend/app/main.py`.
-- Clerk auth boundary: `backend/app/auth/clerk.py`.
+- FastAPI auth auth boundary: `backend/app/auth/local auth.py`.
 - Supabase repository boundary: `backend/app/storage/repository.py`.
 - LangChain provider boundary: `backend/app/llm/providers.py`.
 - LangGraph orchestration boundary: `backend/app/orchestration/workflow.py`.
@@ -102,8 +102,8 @@ What was created:
 
 Testing/checking:
 
-- Backend API can run without Clerk/Supabase keys in dev mode.
-- Frontend can build without real Clerk keys in dev mode.
+- Backend API can run without FastAPI auth/Supabase keys in dev mode.
+- Frontend can build without real FastAPI auth keys in dev mode.
 - The dashboard can call the backend when both dev servers are running.
 
 ## Phase 5: First Release Features And Testing
@@ -133,7 +133,7 @@ Testing/checking:
 
 ## Next Product-Building Order
 
-1. Connect real Clerk, Supabase, Groq, and Gemini keys.
+1. Connect real FastAPI auth, Supabase, Groq, and Gemini keys.
 2. Run the hosted Supabase schema.
 3. Deploy backend to Render and frontend to Vercel.
 4. Replace the temporary frontend styling with the user's final frontend form/design.

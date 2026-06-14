@@ -3,6 +3,8 @@ create table if not exists public.user_profiles (
     clerk_user_id text not null unique,
     email text,
     full_name text,
+    password_hash text,
+    auth_provider text not null default 'local',
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
@@ -43,3 +45,10 @@ create table if not exists public.usage_logs (
     estimated_cost numeric(12, 6) not null default 0,
     created_at timestamptz not null default now()
 );
+
+
+alter table public.user_profiles
+    add column if not exists password_hash text;
+
+alter table public.user_profiles
+    add column if not exists auth_provider text not null default 'local';

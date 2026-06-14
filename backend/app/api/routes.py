@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.auth.clerk import AuthenticatedUser, get_current_user
+from app.auth.local import AuthenticatedUser, AuthResponse, LoginRequest, SignupRequest, get_current_user, login_user, signup_user
 from app.orchestration.workflow import run_agentic_workflow
 from app.schemas.workflow import NodeTrace, RunCreateRequest, RunResponse, UsageLog
 from app.storage.repository import RunRepository, get_repository
@@ -17,6 +17,16 @@ router = APIRouter()
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@router.post("/auth/signup", response_model=AuthResponse)
+def signup(request: SignupRequest) -> AuthResponse:
+    return signup_user(request)
+
+
+@router.post("/auth/login", response_model=AuthResponse)
+def login(request: LoginRequest) -> AuthResponse:
+    return login_user(request)
 
 
 @router.get("/me")

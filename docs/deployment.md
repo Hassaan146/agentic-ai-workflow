@@ -5,8 +5,6 @@
 - Root directory: `frontend`
 - Build command: `npm run build`
 - Environment variables:
-  - `NEXT_PUBLIC_AUTH_MODE=clerk`
-  - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
   - `NEXT_PUBLIC_API_BASE_URL`
 
 ## Backend: Render
@@ -18,17 +16,21 @@
   - `APP_ENV=production`
   - `ALLOW_DEV_AUTH=false`
   - `BACKEND_CORS_ORIGINS`
-  - `CLERK_JWKS_URL`
+  - `JWT_SECRET`
+  - `JWT_ALGORITHM=HS256`
+  - `JWT_EXPIRE_MINUTES=10080`
   - `SUPABASE_URL`
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `GROQ_API_KEY`
+  - `GROQ_REASONING_API_KEY`
   - `GOOGLE_API_KEY`
-  - `SEARCH_PROVIDER`
+  - `SEARCH_PROVIDER=duckduckgo`
   - `DEFAULT_FAST_MODEL`
   - `DEFAULT_REASONING_MODEL`
 
 ## Database: Supabase
 
 - Run `supabase/schema.sql` in the Supabase SQL editor.
-- Keep the service role key on the backend only.
-- Store Clerk user IDs in `clerk_user_id`.
+- Keep the service role/secret key on the backend only.
+- Local FastAPI auth stores password hashes in `user_profiles.password_hash`.
+- The existing `clerk_user_id` column is reused as a local user id for backward compatibility.

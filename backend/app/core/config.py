@@ -10,13 +10,14 @@ class Settings(BaseSettings):
     app_env: Literal["dev", "production"] = "dev"
     allow_dev_auth: bool = True
     backend_cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
-    clerk_secret_key: str = ""
-    clerk_jwks_url: str = ""
     supabase_url: str = ""
     supabase_service_role_key: str = ""
     groq_api_key: str = ""
     groq_reasoning_api_key: str = ""
     google_api_key: str = ""
+    jwt_secret: str = "change-me-in-production"
+    jwt_algorithm: str = "HS256"
+    jwt_expire_minutes: int = 10080
     search_provider: Literal["mock", "duckduckgo"] = "mock"
     default_fast_model: str = "llama-3.1-8b-instant"
     default_reasoning_model: str = "llama-3.3-70b-versatile"
@@ -38,11 +39,15 @@ class Settings(BaseSettings):
             return []
 
         required_values = {
-            "CLERK_JWKS_URL": self.clerk_jwks_url,
+            "JWT_SECRET": self.jwt_secret,
             "SUPABASE_URL": self.supabase_url,
             "SUPABASE_SERVICE_ROLE_KEY": self.supabase_service_role_key,
         }
-        return [name for name, value in required_values.items() if not value.strip()]
+        return [
+            name
+            for name, value in required_values.items()
+            if not value.strip() or (name == "JWT_SECRET" and value == "change-me-in-production")
+        ]
 
     def assert_runtime_ready(self) -> None:
         missing = self.missing_production_settings()

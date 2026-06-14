@@ -4,7 +4,7 @@ Agentic AI Workflow is a cloud-first multi-agent orchestration product. It turns
 
 ## Stack
 
-- Frontend: Next.js, React, Clerk
+- Frontend: Next.js, React, FastAPI auth
 - Backend: FastAPI, Pydantic
 - Orchestration: LangGraph
 - LLM/tool layer: LangChain

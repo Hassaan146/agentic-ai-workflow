@@ -42,7 +42,7 @@ Theme: Tool selection and product architecture.
 
 Key message:
 
-Each tool has one clear responsibility: Next.js for the interface, FastAPI for APIs, LangGraph for orchestration, LangChain for models/tools, Clerk for auth, Supabase for storage, Vercel and Render for deployment.
+Each tool has one clear responsibility: Next.js for the interface, FastAPI for APIs, LangGraph for orchestration, LangChain for models/tools, FastAPI JWT auth, Supabase for storage, Vercel and Render for deployment.
 
 Visual:
 

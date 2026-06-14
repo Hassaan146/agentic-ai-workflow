@@ -7,6 +7,42 @@ import type {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
+export type AuthPayload = {
+  email: string;
+  password: string;
+  full_name?: string;
+};
+
+export type AuthResponse = {
+  access_token: string;
+  token_type: "bearer";
+  user: { user_id: string; email?: string; name?: string };
+};
+
+export async function login(payload: AuthPayload): Promise<AuthResponse> {
+  return authRequest("/api/auth/login", payload);
+}
+
+export async function signup(payload: AuthPayload): Promise<AuthResponse> {
+  return authRequest("/api/auth/signup", payload);
+}
+
+async function authRequest(path: string, payload: AuthPayload): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Authentication failed.");
+  }
+
+  return response.json();
+}
+
+
 export async function createRun(payload: RunCreateRequest, token: string | null): Promise<RunResponse> {
   const response = await fetch(`${API_BASE_URL}/api/runs`, {
     method: "POST",

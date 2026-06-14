@@ -12,7 +12,7 @@ services:
         value: false
       - key: BACKEND_CORS_ORIGINS
         sync: false
-      - key: CLERK_JWKS_URL
+      - key: JWT_SECRET
         sync: false
       - key: SUPABASE_URL
         sync: false

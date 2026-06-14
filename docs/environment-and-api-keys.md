@@ -4,72 +4,49 @@ Use this guide after the local dev skeleton is working.
 
 ## Local Dev Mode
 
-For local development without external services, use:
-
 ```env
 APP_ENV=dev
 ALLOW_DEV_AUTH=true
 BACKEND_CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
-NEXT_PUBLIC_AUTH_MODE=dev
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
-This makes the frontend send `dev-token` to the backend. The backend accepts `dev-token` as a local development user.
+Local dev still accepts `dev-token`, but the frontend login/signup screens now use the FastAPI auth endpoints.
 
-## Clerk
+## FastAPI Auth
 
 Used for:
 
-- Login
 - Signup
-- User sessions
-- Protected frontend access
+- Login
+- JWT sessions
 - Protected backend access
 
-Where to place keys:
-
-- Frontend: `frontend/.env.local`
-- Backend: `backend/.env`
-
-Frontend:
+Backend only:
 
 ```env
-NEXT_PUBLIC_AUTH_MODE=clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_key_here
+JWT_SECRET=your_long_random_jwt_secret
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=10080
 ```
 
-Backend:
-
-```env
-CLERK_JWKS_URL=https://your-clerk-domain/.well-known/jwks.json
-```
-
-You do not need to put a Clerk secret key in the frontend. The current backend verifies Clerk JWTs through `CLERK_JWKS_URL`, so the required Clerk values are:
-
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Vercel/frontend only. This is the `pk_test_...` or `pk_live_...` key.
-- `CLERK_JWKS_URL`: Render/backend only. In Clerk, copy the JWKS URL from the JWT/session verification settings, or use the domain form shown above.
-
-Keep `CLERK_SECRET_KEY` backend-only if you later add Clerk server SDK actions. It is not required for the current MVP auth verification path.
+Generate `JWT_SECRET` with a long random value and keep it backend-only. Do not put it in the frontend or GitHub.
 
 ## Supabase
 
 Used for:
 
-- User profiles
+- User profiles and password hashes
 - Workflow runs
 - Node traces
 - Final outputs
 - Usage logs
 
-Where to place keys:
-
-- Backend only: `backend/.env`
-
-Backend:
+Backend only:
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_or_secret_key
 ```
 
 Important:
@@ -79,20 +56,7 @@ Important:
 
 ## Groq
 
-Used for:
-
-- Fast model calls
-- Request structuring
-- Routing-style tasks
-- Reasoning
-- Synthesis
-- Final answer generation
-
-Where to place keys:
-
-- Backend only: `backend/.env`
-
-Use two Groq keys if you have them. The first key is for fast routing/structuring work. The second key is for heavier reasoning and writing work.
+Backend only:
 
 ```env
 GROQ_API_KEY=your_fast_groq_api_key
@@ -101,15 +65,9 @@ DEFAULT_FAST_MODEL=llama-3.1-8b-instant
 DEFAULT_REASONING_MODEL=llama-3.3-70b-versatile
 ```
 
-You can also use only one Groq key by setting `GROQ_API_KEY` and leaving `GROQ_REASONING_API_KEY` empty.
-
 ## Google AI Studio / Gemini
 
-Optional. Leave this empty if you want to use Groq only.
-
-Where to place key:
-
-- Backend only: `backend/.env`
+Optional. Leave this empty if you want Groq only.
 
 ```env
 GOOGLE_API_KEY=
@@ -117,15 +75,11 @@ GOOGLE_API_KEY=
 
 ## Search Provider
 
-Used for controlled research sources.
-
 Backend only:
 
 ```env
-SEARCH_PROVIDER=mock
+SEARCH_PROVIDER=duckduckgo
 ```
-
-Use `mock` for local testing and portfolio demos without network dependency. Use `duckduckgo` when you want the MVP to fetch real public search-style results and scrape returned pages without adding another paid key. For production, use `duckduckgo`.
 
 ## Frontend API URL
 
@@ -143,15 +97,15 @@ NEXT_PUBLIC_API_BASE_URL=https://your-render-backend.onrender.com
 
 ## Render Backend Environment Variables
 
-Set these in Render:
-
 ```env
 APP_ENV=production
 ALLOW_DEV_AUTH=false
 BACKEND_CORS_ORIGINS=https://your-vercel-app.vercel.app
-CLERK_JWKS_URL=https://your-clerk-domain/.well-known/jwks.json
+JWT_SECRET=your_long_random_jwt_secret
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=10080
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_or_secret_key
 GROQ_API_KEY=your_fast_groq_api_key
 GROQ_REASONING_API_KEY=your_reasoning_groq_api_key
 GOOGLE_API_KEY=
@@ -162,19 +116,13 @@ DEFAULT_REASONING_MODEL=llama-3.3-70b-versatile
 
 ## Vercel Frontend Environment Variables
 
-Set these in Vercel:
-
 ```env
-NEXT_PUBLIC_AUTH_MODE=clerk
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_or_live_key
 NEXT_PUBLIC_API_BASE_URL=https://your-render-backend.onrender.com
 ```
 
 ## Secret Placement Checklist
 
 - Vercel: only `NEXT_PUBLIC_*` values.
-- Render: backend secrets, model keys, Supabase service role key, Clerk JWKS URL.
-- Supabase: run the SQL schema, then copy URL and service role key into Render.
-- Clerk: copy publishable key into Vercel and JWKS URL into Render.
+- Render: backend secrets, model keys, Supabase service role/secret key, JWT secret.
+- Supabase: run the SQL schema, then copy URL and service role/secret key into Render.
 - Groq: copy keys into Render as `GROQ_API_KEY` and optionally `GROQ_REASONING_API_KEY`.
-- Google AI Studio: optional; only set `GOOGLE_API_KEY` if you want Gemini instead of Groq-only testing.
