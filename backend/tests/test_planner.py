@@ -57,8 +57,8 @@ def test_dependency_cycle_is_rejected() -> None:
 
 def test_factual_what_is_question_includes_research_before_synthesis() -> None:
     structured = StructuredRequest(
-        original_request="what is toon, is it better than json",
-        goal="what is toon, is it better than json",
+        original_request="what is gcf, is it better than json",
+        goal="what is gcf, is it better than json",
     )
 
     plan = build_task_plan(structured)

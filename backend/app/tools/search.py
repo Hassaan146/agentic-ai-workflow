@@ -338,38 +338,38 @@ def _query_variants(query: str) -> list[str]:
 
 def _seeded_results(query: str) -> list[SearchResult]:
     lowered = query.lower()
-    if "toon" not in lowered or "json" not in lowered:
+    if "gcf" not in lowered and "toon" not in lowered and "json" not in lowered:
         return []
     return [
         SearchResult(
-            title="TOON | Token-Oriented Object Notation",
-            url="https://toonformat.dev/",
-            summary="Official TOON documentation and overview.",
-            source_context="Seeded source for TOON plus JSON research query.",
+            title="GCF | Graph Compact Format benchmark",
+            url="https://dev.to/daynablackwell/llm-wire-format-benchmark-which-format-can-ai-actually-read-and-write-1lob",
+            summary="Public GCF benchmark article comparing GCF, TOON, and JSON for LLM wire formats.",
+            source_context="Seeded source for GCF, TOON, and JSON research query.",
         ),
         SearchResult(
-            title="GitHub - toon-format/toon",
-            url="https://raw.githubusercontent.com/toon-format/toon/main/packages/toon/README.md",
-            summary="TOON specification, SDK, benchmarks, and examples from the package README.",
-            source_context="Seeded source for TOON plus JSON research query.",
+            title="GCF Go package",
+            url="https://pkg.go.dev/github.com/blackwell-systems/gcf-go/cmd/gcf",
+            summary="Go package documentation for the GCF command-line encoder/decoder.",
+            source_context="Seeded source for GCF, TOON, and JSON research query.",
         ),
         SearchResult(
-            title="TOON Format Guide",
+            title="TOON format background",
             url="https://jsontotable.org/toon-format",
-            summary="TOON format guide and JSON conversion context.",
-            source_context="Seeded source for TOON plus JSON research query.",
+            summary="Background context on TOON and JSON conversion for comparison.",
+            source_context="Seeded source for GCF, TOON, and JSON research query.",
         ),
         SearchResult(
-            title="TOON Parser",
+            title="TOON parser background",
             url="https://parsetoon.com/",
-            summary="TOON and JSON converter with token savings context.",
-            source_context="Seeded source for TOON plus JSON research query.",
+            summary="TOON and JSON converter context retained for comparison with GCF.",
+            source_context="Seeded source for GCF, TOON, and JSON research query.",
         ),
         SearchResult(
-            title="Token-Oriented Object Notation vs JSON benchmark",
+            title="TOON vs JSON benchmark",
             url="https://arxiv.org/abs/2603.03306",
-            summary="Benchmark paper comparing TOON and JSON generation behavior.",
-            source_context="Seeded source for TOON plus JSON research query.",
+            summary="Benchmark paper comparing TOON and JSON generation behavior, retained for comparison with GCF.",
+            source_context="Seeded source for GCF, TOON, and JSON research query.",
         ),
     ]
 

@@ -7,7 +7,7 @@ from langgraph.graph import END, StateGraph
 from app.llm.providers import get_model_provider
 from app.llm.prompts import agent_task_prompt, structure_request_prompt
 from app.orchestration.outputs import build_agent_output
-from app.orchestration.toon import to_toon
+from app.orchestration.gcf import to_gcf
 from app.orchestration.planner import build_task_plan, order_tasks_by_prerequisites
 from app.schemas.workflow import (
     AgentOutput,
@@ -167,7 +167,7 @@ async def execute_agents(state: WorkflowState) -> WorkflowState:
                     summary=f"Collected {len(results)} sources and extracted {fact_count} raw facts with website context.",
                     extra_data={
                         "sources": [result.model_dump() for result in results],
-                        "input_handoff_format": "toon" if handoff_context else "none",
+                        "input_handoff_format": "gcf" if handoff_context else "none",
                         "input_handoff": handoff_context,
                     },
                 )
@@ -200,12 +200,12 @@ def _dependency_handoff_context(task: WorkflowTask, outputs: list[AgentOutput]) 
         return ""
     blocks = []
     for output in dependency_outputs:
-        payload = output.data.get("toon_payload")
+        payload = output.data.get("gcf_payload")
         if payload:
             blocks.append(str(payload))
     if blocks:
         return "\n---\n".join(blocks)
-    return to_toon(
+    return to_gcf(
         [
             {
                 "task_id": output.task_id,
@@ -330,7 +330,7 @@ def _compact_state(state: WorkflowState) -> dict[str, Any]:
         compact["task_count"] = len(state["tasks"])
     if state.get("agent_outputs"):
         compact["agent_output_count"] = len(state["agent_outputs"])
-        compact["handoff_format"] = "toon"
+        compact["handoff_format"] = "gcf"
     if state.get("final_output"):
         compact["final_output"] = state["final_output"].model_dump()
     return compact

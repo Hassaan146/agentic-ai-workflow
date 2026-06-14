@@ -13,3 +13,7 @@ node_modules/
 out/
 dist/
 coverage/
+.env.*
+!.env.example
+*.pdf
+*.pptx

@@ -13,18 +13,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 
   const body = (
     <html lang="en">
-      <body>
-        <header className="app-header">
-          <a className="brand" href="/">
-            Agentic AI Workflow
-          </a>
-          <nav>
-            <a className="nav-link" href="/dashboard">Dashboard</a>
-            {authMode === "dev" && <span className="dev-badge">Dev auth</span>}
-          </nav>
-        </header>
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 
