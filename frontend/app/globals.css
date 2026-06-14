@@ -726,3 +726,122 @@ h3 { margin: 0; }
   .auth-screen { padding: 18px; }
   .prompt-chips button { max-width: 100%; }
 }
+
+.admin-shell {
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 24px;
+  position: relative;
+}
+
+.admin-panel {
+  border-radius: 32px;
+  display: grid;
+  gap: 24px;
+  margin: 0 auto;
+  max-width: 1320px;
+  min-height: calc(100vh - 48px);
+  padding: 28px;
+  position: relative;
+  z-index: 2;
+}
+
+.admin-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-header p {
+  color: rgba(255,255,255,0.66);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.admin-header h1 {
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  line-height: 0.85;
+}
+
+.admin-stats-grid,
+.admin-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-stats-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.admin-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.admin-stat,
+.admin-card {
+  background: rgba(0,0,0,0.24);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.admin-stat {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-stat span,
+.admin-row span,
+.admin-row small {
+  color: rgba(255,255,255,0.64);
+}
+
+.admin-stat strong {
+  font-size: 1.8rem;
+}
+
+.admin-card h2 {
+  font-size: 1.1rem;
+  margin-bottom: 14px;
+}
+
+.admin-list {
+  display: grid;
+  gap: 10px;
+  max-height: 420px;
+  overflow: auto;
+}
+
+.admin-row {
+  background: rgba(255,255,255,0.055);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 16px;
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+}
+
+.admin-row strong,
+.admin-row span {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 980px) {
+  .admin-stats-grid,
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

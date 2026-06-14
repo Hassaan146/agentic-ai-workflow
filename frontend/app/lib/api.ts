@@ -2,7 +2,9 @@ import type {
   NodeTrace,
   RunCreateRequest,
   RunResponse,
-  UsageLog
+  UsageLog,
+  AdminStats,
+  AdminUser
 } from "./types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -153,4 +155,40 @@ export async function listRunUsage(runId: string, token: string | null): Promise
   }
 
   return response.json();
+}
+
+
+async function adminGet<T>(path: string, token: string | null): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    }
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Unable to load admin data.");
+  }
+
+  return response.json();
+}
+
+export async function adminStats(token: string | null): Promise<AdminStats> {
+  return adminGet<AdminStats>("/api/admin/stats", token);
+}
+
+export async function adminUsers(token: string | null): Promise<AdminUser[]> {
+  return adminGet<AdminUser[]>("/api/admin/users", token);
+}
+
+export async function adminRuns(token: string | null): Promise<RunResponse[]> {
+  return adminGet<RunResponse[]>("/api/admin/runs", token);
+}
+
+export async function adminTraces(token: string | null): Promise<NodeTrace[]> {
+  return adminGet<NodeTrace[]>("/api/admin/traces", token);
+}
+
+export async function adminUsage(token: string | null): Promise<UsageLog[]> {
+  return adminGet<UsageLog[]>("/api/admin/usage", token);
 }

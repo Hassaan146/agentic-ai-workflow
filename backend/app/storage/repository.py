@@ -3,7 +3,7 @@ from threading import Lock
 from uuid import UUID, uuid4
 
 from app.core.config import settings
-from app.schemas.workflow import FinalOutput, NodeTrace, RunCreateRequest, RunResponse, UsageLog
+from app.schemas.workflow import AdminStats, AdminUser, FinalOutput, NodeTrace, RunCreateRequest, RunResponse, UsageLog
 
 
 class RunRepository:
@@ -32,6 +32,21 @@ class RunRepository:
         raise NotImplementedError
 
     def list_usage_logs(self, run_id: UUID) -> list[UsageLog]:
+        raise NotImplementedError
+
+    def list_all_users(self) -> list[AdminUser]:
+        raise NotImplementedError
+
+    def list_all_runs(self) -> list[RunResponse]:
+        raise NotImplementedError
+
+    def list_all_node_traces(self) -> list[NodeTrace]:
+        raise NotImplementedError
+
+    def list_all_usage_logs(self) -> list[UsageLog]:
+        raise NotImplementedError
+
+    def admin_stats(self) -> AdminStats:
         raise NotImplementedError
 
 
@@ -108,6 +123,45 @@ class InMemoryRunRepository(RunRepository):
 
     def list_usage_logs(self, run_id: UUID) -> list[UsageLog]:
         return list(self._usage_logs.get(run_id, []))
+
+    def list_all_users(self) -> list[AdminUser]:
+        from app.auth.local import _memory_users_by_email
+
+        return [
+            AdminUser(
+                id=user.id,
+                email=user.email,
+                full_name=user.full_name,
+                is_admin=user.is_admin,
+                auth_provider="local",
+            )
+            for user in _memory_users_by_email.values()
+        ]
+
+    def list_all_runs(self) -> list[RunResponse]:
+        return sorted(self._runs.values(), key=lambda item: item.created_at, reverse=True)
+
+    def list_all_node_traces(self) -> list[NodeTrace]:
+        traces: list[NodeTrace] = []
+        for run_traces in self._traces.values():
+            traces.extend(run_traces)
+        return sorted(traces, key=lambda item: item.started_at, reverse=True)
+
+    def list_all_usage_logs(self) -> list[UsageLog]:
+        logs: list[UsageLog] = []
+        for run_logs in self._usage_logs.values():
+            logs.extend(run_logs)
+        return sorted(logs, key=lambda item: item.created_at, reverse=True)
+
+    def admin_stats(self) -> AdminStats:
+        usage_logs = self.list_all_usage_logs()
+        return AdminStats(
+            users=len(self.list_all_users()),
+            runs=len(self._runs),
+            traces=sum(len(items) for items in self._traces.values()),
+            usage_logs=len(usage_logs),
+            estimated_tokens=sum(item.prompt_tokens + item.completion_tokens for item in usage_logs),
+        )
 
 
 class SupabaseRunRepository(RunRepository):
@@ -198,11 +252,41 @@ class SupabaseRunRepository(RunRepository):
         )
         return [UsageLog(**item) for item in data]
 
+    def list_all_users(self) -> list[AdminUser]:
+        data = self.client.table("user_profiles").select("id,email,full_name,is_admin,auth_provider,created_at,updated_at").order("created_at", desc=True).execute().data
+        return [AdminUser(**item) for item in data]
+
+    def list_all_runs(self) -> list[RunResponse]:
+        data = self.client.table("workflow_runs").select("*").order("created_at", desc=True).execute().data
+        return [RunResponse(**item) for item in data]
+
+    def list_all_node_traces(self) -> list[NodeTrace]:
+        data = self.client.table("node_traces").select("*").order("started_at", desc=True).limit(200).execute().data
+        return [NodeTrace(**item) for item in data]
+
+    def list_all_usage_logs(self) -> list[UsageLog]:
+        data = self.client.table("usage_logs").select("*").order("created_at", desc=True).limit(200).execute().data
+        return [UsageLog(**item) for item in data]
+
+    def admin_stats(self) -> AdminStats:
+        users = self.list_all_users()
+        runs = self.list_all_runs()
+        traces = self.list_all_node_traces()
+        usage_logs = self.list_all_usage_logs()
+        return AdminStats(
+            users=len(users),
+            runs=len(runs),
+            traces=len(traces),
+            usage_logs=len(usage_logs),
+            estimated_tokens=sum(item.prompt_tokens + item.completion_tokens for item in usage_logs),
+        )
+
 
 _memory_repository = InMemoryRunRepository()
 
 
 def get_repository() -> RunRepository:
-    if settings.supabase_url and settings.supabase_service_role_key:
+    if settings.has_supabase_storage:
         return SupabaseRunRepository()
     return _memory_repository
+

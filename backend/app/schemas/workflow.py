@@ -95,3 +95,21 @@ class RunResponse(BaseModel):
 
 class WorkflowResult(BaseModel):
     final_output: FinalOutput
+
+
+class AdminUser(BaseModel):
+    id: UUID | str
+    email: str
+    full_name: str | None = None
+    is_admin: bool = False
+    auth_provider: str = "local"
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class AdminStats(BaseModel):
+    users: int = 0
+    runs: int = 0
+    traces: int = 0
+    usage_logs: int = 0
+    estimated_tokens: int = 0

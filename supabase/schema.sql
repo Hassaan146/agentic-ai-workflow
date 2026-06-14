@@ -5,6 +5,7 @@ create table if not exists public.user_profiles (
     full_name text,
     password_hash text,
     auth_provider text not null default 'local',
+    is_admin boolean not null default false,
     created_at timestamptz not null default now(),
     updated_at timestamptz not null default now()
 );
@@ -52,3 +53,7 @@ alter table public.user_profiles
 
 alter table public.user_profiles
     add column if not exists auth_provider text not null default 'local';
+
+
+alter table public.user_profiles
+    add column if not exists is_admin boolean not null default false;

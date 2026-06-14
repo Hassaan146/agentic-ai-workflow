@@ -104,3 +104,17 @@ def test_run_trace_and_usage_endpoints_return_inspection_data() -> None:
     assert usage_response.status_code == 200
     assert any(trace["node_key"] == "structure_request" for trace in traces_response.json())
     assert any(log["purpose"] == "structure" for log in usage_response.json())
+
+
+def test_admin_stats_requires_admin_user() -> None:
+    from app.auth.local import AuthenticatedUser, create_access_token
+
+    client = TestClient(create_app())
+    admin_response = client.get("/api/admin/stats", headers={"Authorization": "Bearer dev-token"})
+
+    normal_token = create_access_token(AuthenticatedUser(user_id="normal-user", email="normal@example.com"))
+    normal_response = client.get("/api/admin/stats", headers={"Authorization": f"Bearer {normal_token}"})
+
+    assert admin_response.status_code == 200
+    assert {"users", "runs", "traces", "usage_logs", "estimated_tokens"}.issubset(admin_response.json())
+    assert normal_response.status_code == 403

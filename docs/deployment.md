@@ -19,6 +19,7 @@
   - `JWT_SECRET`
   - `JWT_ALGORITHM=HS256`
   - `JWT_EXPIRE_MINUTES=10080`
+  - `ADMIN_EMAILS`
   - `SUPABASE_URL`
   - `SUPABASE_SERVICE_ROLE_KEY`
   - `GROQ_API_KEY`
@@ -31,6 +32,13 @@
 ## Database: Supabase
 
 - Run `supabase/schema.sql` in the Supabase SQL editor.
-- Keep the service role/secret key on the backend only.
+- Keep the JWT-style service role key on the backend only.
 - Local FastAPI auth stores password hashes in `user_profiles.password_hash`.
 - The existing `clerk_user_id` column is reused as a local user id for backward compatibility.
+
+## Admin Access
+
+- Set `ADMIN_EMAILS` to the email you will use for the admin signup.
+- Sign up with that email, then open `/admin` after login.
+- If the account already exists, set `user_profiles.is_admin = true` for that email in Supabase.
+- Use the JWT-style Supabase service role key on Render; keep it backend-only.

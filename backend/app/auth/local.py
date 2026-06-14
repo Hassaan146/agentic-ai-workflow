@@ -21,6 +21,7 @@ class AuthenticatedUser(BaseModel):
     user_id: str
     email: str | None = None
     name: str | None = None
+    is_admin: bool = False
 
     @property
     def clerk_user_id(self) -> str:
@@ -33,6 +34,7 @@ class StoredUser(BaseModel):
     email: str
     password_hash: str
     full_name: str | None = None
+    is_admin: bool = False
 
 
 class SignupRequest(BaseModel):
@@ -65,9 +67,10 @@ def signup_user(request: SignupRequest) -> AuthResponse:
         email=email,
         password_hash=hash_password(request.password),
         full_name=(request.full_name or "").strip() or None,
+        is_admin=_is_admin_email(email),
     )
     _save_user(user)
-    auth_user = AuthenticatedUser(user_id=user.id, email=user.email, name=user.full_name)
+    auth_user = AuthenticatedUser(user_id=user.id, email=user.email, name=user.full_name, is_admin=user.is_admin)
     return AuthResponse(access_token=create_access_token(auth_user), user=auth_user)
 
 
@@ -75,7 +78,7 @@ def login_user(request: LoginRequest) -> AuthResponse:
     user = _find_user_by_email(_normalize_email(request.email))
     if not user or not verify_password(request.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid email or password.")
-    auth_user = AuthenticatedUser(user_id=user.id, email=user.email, name=user.full_name)
+    auth_user = AuthenticatedUser(user_id=user.id, email=user.email, name=user.full_name, is_admin=user.is_admin)
     return AuthResponse(access_token=create_access_token(auth_user), user=auth_user)
 
 
@@ -86,7 +89,7 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="Missing bearer token.")
 
     if credentials.credentials == "dev-token" and settings.allow_dev_auth and not settings.is_production:
-        return AuthenticatedUser(user_id="dev-user", email="dev@example.com")
+        return AuthenticatedUser(user_id="dev-user", email="dev@example.com", is_admin=True)
 
     try:
         payload = jwt.decode(
@@ -100,7 +103,7 @@ def get_current_user(
     user_id = str(payload.get("sub") or "")
     if not user_id:
         raise HTTPException(status_code=401, detail="Invalid bearer token.")
-    return AuthenticatedUser(user_id=user_id, email=payload.get("email"), name=payload.get("name"))
+    return AuthenticatedUser(user_id=user_id, email=payload.get("email"), name=payload.get("name"), is_admin=bool(payload.get("is_admin")))
 
 
 def create_access_token(user: AuthenticatedUser) -> str:
@@ -109,6 +112,7 @@ def create_access_token(user: AuthenticatedUser) -> str:
         "sub": user.user_id,
         "email": user.email,
         "name": user.name,
+        "is_admin": user.is_admin,
         "iat": now,
         "exp": now + timedelta(minutes=settings.jwt_expire_minutes),
     }
@@ -162,6 +166,7 @@ def _find_user_by_email(email: str) -> StoredUser | None:
             email=row["email"],
             password_hash=password_hash,
             full_name=row.get("full_name"),
+            is_admin=bool(row.get("is_admin")),
         )
     return _memory_users_by_email.get(email)
 
@@ -179,7 +184,18 @@ def _save_user(user: StoredUser) -> None:
                 "full_name": user.full_name,
                 "password_hash": user.password_hash,
                 "auth_provider": "local",
+                "is_admin": user.is_admin,
             }
         ).execute()
         return
     _memory_users_by_email[user.email] = user
+
+
+def _is_admin_email(email: str) -> bool:
+    return email.lower() in settings.admin_email_set
+
+
+def require_admin(user: Annotated[AuthenticatedUser, Depends(get_current_user)]) -> AuthenticatedUser:
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required.")
+    return user

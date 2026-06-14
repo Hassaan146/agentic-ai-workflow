@@ -46,3 +46,22 @@ export type UsageLog = {
   estimated_cost: number;
   created_at: string;
 };
+
+
+export type AdminUser = {
+  id: string;
+  email: string;
+  full_name?: string | null;
+  is_admin: boolean;
+  auth_provider: string;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type AdminStats = {
+  users: number;
+  runs: number;
+  traces: number;
+  usage_logs: number;
+  estimated_tokens: number;
+};

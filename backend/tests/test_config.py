@@ -33,10 +33,11 @@ def test_production_mode_accepts_required_settings() -> None:
         app_env="production",
         jwt_secret="production-jwt-secret",
         supabase_url="https://example.supabase.co",
-        supabase_service_role_key="service-role-key",
+        supabase_service_role_key="header.payload.signature",
         _env_file=None,
     )
 
     assert settings.missing_production_settings() == []
     settings.assert_runtime_ready()
+
 

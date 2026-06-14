@@ -5,9 +5,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.auth.local import AuthenticatedUser, AuthResponse, LoginRequest, SignupRequest, get_current_user, login_user, signup_user
+from app.auth.local import AuthenticatedUser, AuthResponse, LoginRequest, SignupRequest, get_current_user, login_user, require_admin, signup_user
 from app.orchestration.workflow import run_agentic_workflow
-from app.schemas.workflow import NodeTrace, RunCreateRequest, RunResponse, UsageLog
+from app.schemas.workflow import AdminStats, AdminUser, NodeTrace, RunCreateRequest, RunResponse, UsageLog
 from app.storage.repository import RunRepository, get_repository
 from app.templates import TEMPLATES
 
@@ -32,6 +32,46 @@ def login(request: LoginRequest) -> AuthResponse:
 @router.get("/me")
 def me(user: AuthenticatedUser = Depends(get_current_user)) -> AuthenticatedUser:
     return user
+
+
+@router.get("/admin/stats", response_model=AdminStats)
+def admin_stats(
+    user: AuthenticatedUser = Depends(require_admin),
+    repository: RunRepository = Depends(get_repository),
+) -> AdminStats:
+    return repository.admin_stats()
+
+
+@router.get("/admin/users", response_model=list[AdminUser])
+def admin_users(
+    user: AuthenticatedUser = Depends(require_admin),
+    repository: RunRepository = Depends(get_repository),
+) -> list[AdminUser]:
+    return repository.list_all_users()
+
+
+@router.get("/admin/runs", response_model=list[RunResponse])
+def admin_runs(
+    user: AuthenticatedUser = Depends(require_admin),
+    repository: RunRepository = Depends(get_repository),
+) -> list[RunResponse]:
+    return repository.list_all_runs()
+
+
+@router.get("/admin/traces", response_model=list[NodeTrace])
+def admin_traces(
+    user: AuthenticatedUser = Depends(require_admin),
+    repository: RunRepository = Depends(get_repository),
+) -> list[NodeTrace]:
+    return repository.list_all_node_traces()
+
+
+@router.get("/admin/usage", response_model=list[UsageLog])
+def admin_usage(
+    user: AuthenticatedUser = Depends(require_admin),
+    repository: RunRepository = Depends(get_repository),
+) -> list[UsageLog]:
+    return repository.list_all_usage_logs()
 
 
 @router.get("/templates")
